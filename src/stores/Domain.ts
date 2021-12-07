@@ -1,2 +1,2 @@
-import { createDomain } from 'effector';
-export const domain = createDomain('polio')
+import { createDomain } from "effector";
+export const domain = createDomain("polio");

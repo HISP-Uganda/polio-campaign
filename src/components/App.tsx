@@ -1,9 +1,9 @@
-import { Box } from '@chakra-ui/react'
-import { useStore } from 'effector-react';
-import { useAnalytics, useLoader } from '../stores/Queries';
-import { $store } from '../stores/Store';
-import { BarGraph } from './BarGraph';
-import Dashboard from './Dashboard';
+import { Box } from "@chakra-ui/react";
+import { useStore } from "effector-react";
+import { useAnalytics, useLoader } from "../stores/Queries";
+import { $store } from "../stores/Store";
+import { BarGraph } from "./BarGraph";
+import Dashboard from "./Dashboard";
 const App = () => {
     // const store = useStore($store);
     // const { isLoading, isError, isSuccess, error, data } = useAnalytics('K3QB60hWuQI', 'THIS_MONTH', 'akV6429SUqu', false, false, true);
@@ -16,7 +16,7 @@ const App = () => {
             {isError && <Box>{error.message}</Box>} */}
             <Dashboard />
         </Box>
-    )
-}
+    );
+};
 
-export default App
+export default App;
