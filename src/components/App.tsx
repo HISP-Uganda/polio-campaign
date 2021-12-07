@@ -1,17 +1,20 @@
 import { Box } from '@chakra-ui/react'
 import { useStore } from 'effector-react';
-import { changeCurrentUser } from '../stores/Events';
-import { useLoader } from '../stores/Queries';
+import { useAnalytics, useLoader } from '../stores/Queries';
 import { $store } from '../stores/Store';
+import { BarGraph } from './BarGraph';
+import Dashboard from './Dashboard';
 const App = () => {
-    const store = useStore($store);
-    const { isLoading, isError, isSuccess, error, data } = useLoader();
+    // const store = useStore($store);
+    // const { isLoading, isError, isSuccess, error, data } = useAnalytics('K3QB60hWuQI', 'THIS_MONTH', 'akV6429SUqu', false, false, true);
     return (
         <Box w="100vw" h="calc(100vh - 48px)">
-            <Box>{store.currentUser}</Box><button onClick={() => changeCurrentUser("Sammuel")}>Change Current User</button>
-            {isLoading && <Box>Loading...</Box>}
-            {isSuccess && <Box><pre>{JSON.stringify(data, null, 2)}</pre></Box>}
-            {isError && <Box>{error.message}</Box>}
+            {/* {isLoading && <Box>Loading...</Box>}
+            {isSuccess && <Box>
+                <BarGraph analytics={data} />
+            </Box>}
+            {isError && <Box>{error.message}</Box>} */}
+            <Dashboard />
         </Box>
     )
 }
