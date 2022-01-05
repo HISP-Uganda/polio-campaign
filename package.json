@@ -24,6 +24,7 @@
     "@dhis2/app-runtime": "^3.2.6",
     "@emotion/react": "^11",
     "@emotion/styled": "^11",
+    "antd": "^4.17.3",
     "cors": "^2.8.5",
     "effector": "^22.1.2",
     "effector-react": "^22.0.4",

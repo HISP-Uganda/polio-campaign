@@ -1,11 +1,13 @@
 import Plot from "react-plotly.js";
 import { Box } from "@chakra-ui/react";
 import { useSqlView } from "../stores/Queries";
-const Map = ({ metadata }) => {
-  const { isLoading, isError, isSuccess, error, data } = useSqlView(
-    "zHnhTlh7Hbd",
-    { dx: "K3QB60hWuQI" }
-  );
+import { Indicator } from "../interfaces";
+import { FC } from "react";
+const Map: FC<{ metadata: any; indicator: Indicator }> = ({
+  metadata,
+  indicator,
+}) => {
+  const { isLoading, isError, isSuccess, error, data } = useSqlView(indicator);
   return (
     <>
       {isLoading && <Box>Loading</Box>}
@@ -17,7 +19,9 @@ const Map = ({ metadata }) => {
               locations: metadata.organisationUnits.map(
                 (ou: { id: string; name: string }) => ou.name
               ),
-              z: metadata.organisationUnits.map(({ id }) => data[id] || 0),
+              z: metadata.organisationUnits.map(
+                ({ id }) => data.numerators[id] || 0
+              ),
               featureidkey: "properties.name",
               geojson: metadata.geojson,
             } as any,

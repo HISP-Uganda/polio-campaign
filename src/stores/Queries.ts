@@ -1,12 +1,8 @@
 import { useDataEngine } from "@dhis2/app-runtime";
 import { useQuery } from "react-query";
-import { fromPairs } from "lodash";
-interface AnalyticsOptions {
-  filterByOu: boolean;
-  filterByDx: boolean;
-  filterByPe: boolean;
-  series?: "ou" | "dx" | "pe";
-}
+import { fromPairs, isEmpty } from "lodash";
+import { Indicator } from "../interfaces";
+
 export function useLoader() {
   const engine = useDataEngine();
   const query = {
@@ -20,40 +16,82 @@ export function useLoader() {
   });
 }
 
-export function useSqlView(
-  sqlView: string,
-  parameters: { [key: string]: string } = {}
-) {
+export function useSqlView(indicator: Indicator) {
   const engine = useDataEngine();
-
-  const key = Object.entries(parameters).flatMap((val) => {
+  const numeratorKeys = Object.entries(indicator.numerator.parameters).flatMap(
+    (val) => {
+      return val;
+    }
+  );
+  const denominatorKeys = Object.entries(
+    indicator.denominator.parameters
+  ).flatMap((val) => {
     return val;
   });
-  const conditions = Object.entries(parameters)
+
+  const numeratorConditions = Object.entries(indicator.numerator.parameters)
     .map(([col, val]) => {
       return `var=${col}:${val}`;
     })
     .join("&");
-  const query = {
-    analytics: {
-      resource: !!conditions
-        ? `sqlViews/${sqlView}/data?${conditions}&paging=false`
-        : `sqlViews/${sqlView}/data?paging=false`,
+
+  const denominatorConditions = Object.entries(indicator.denominator.parameters)
+    .map(([col, val]) => {
+      return `var=${col}:${val}`;
+    })
+    .join("&");
+
+  let query: any = {
+    numerator: {
+      resource: !!numeratorConditions
+        ? `sqlViews/${indicator.numerator.sqlView}/data?${numeratorConditions}&paging=false`
+        : `sqlViews/${indicator.numerator.sqlView}/data?paging=false`,
     },
   };
+  if (!isEmpty(indicator.denominator)) {
+    query = {
+      ...query,
+      denominator: {
+        resource: !!denominatorConditions
+          ? `sqlViews/${indicator.denominator.sqlView}/data?${denominatorConditions}&paging=false`
+          : `sqlViews/${indicator.denominator.sqlView}/data?paging=false`,
+      },
+    };
+  }
+
   return useQuery<any, Error>(
-    ["query", sqlView, ...key],
+    [
+      "query",
+      indicator.numerator.sqlView,
+      indicator.denominator?.sqlView,
+      ...numeratorKeys,
+      ...denominatorKeys,
+    ],
     async () => {
       const {
-        analytics: {
-          listGrid: { rows, headers },
+        numerator: {
+          listGrid: { rows: numRows, headers: numHeaders },
+        },
+        denominator: {
+          listGrid: { rows: denRows, headers: denHeaders },
         },
       }: any = await engine.query(query);
-
-      if (headers.length === 2) {
-        return fromPairs(rows);
+      let numerators: any = numRows;
+      let denominators: any = denRows;
+      if (numHeaders.length === 2) {
+        numerators = fromPairs(numRows);
+      } else if (numHeaders.length === 1) {
+        numerators = numRows[0][0];
       }
-      return rows;
+      if (denHeaders.length === 2) {
+        denominators = fromPairs(denRows);
+      } else if (numHeaders.length === 1) {
+        denominators = denRows[0][0];
+      }
+      return {
+        numerators,
+        denominators,
+      };
     },
     {
       refetchInterval: 1000 * 5,
@@ -91,3 +129,30 @@ export const useMaps = (level = 3) => {
     };
   });
 };
+
+export function useUserOrgUnit() {
+  const engine = useDataEngine();
+  const query = {
+    response: {
+      resource: "organisationUnits.json",
+      params: {
+        level: 1,
+        fields: "id,name,leaf",
+      },
+    },
+  };
+  return useQuery<any, Error>("userOrganisations", async () => {
+    const {
+      response: { organisationUnits },
+    }: any = await engine.query(query);
+    return organisationUnits.map((unit: any) => {
+      return {
+        id: unit.id,
+        pId: unit.pId || "",
+        value: unit.id,
+        title: unit.name,
+        isLeaf: unit.leaf,
+      };
+    });
+  });
+}
