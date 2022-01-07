@@ -24,6 +24,7 @@
     "@dhis2/app-runtime": "^3.2.6",
     "@emotion/react": "^11",
     "@emotion/styled": "^11",
+    "@turf/turf": "^6.5.0",
     "antd": "^4.17.3",
     "cors": "^2.8.5",
     "effector": "^22.1.2",
@@ -33,7 +34,10 @@
     "http-proxy-middleware": "^2.0.1",
     "lodash": "^4.17.21",
     "plotly.js": "^2.6.4",
+    "react-full-screen": "^1.1.0",
+    "react-location": "^3.3.0",
     "react-plotly.js": "^2.5.1",
-    "react-query": "^3.33.4"
+    "react-query": "^3.33.4",
+    "react-timer-hook": "^3.0.5"
   }
 }

@@ -1,59 +1,71 @@
 import Plot from "react-plotly.js";
-import { Box } from "@chakra-ui/react";
+import { Box, Spinner, Flex, Text } from "@chakra-ui/react";
 import { useSqlView } from "../stores/Queries";
 import { Indicator } from "../interfaces";
 import { FC } from "react";
-const Map: FC<{ metadata: any; indicator: Indicator }> = ({
-  metadata,
-  indicator,
-}) => {
+import { Position } from "@turf/turf";
+import { $store } from "../stores/Store";
+import { useStore } from "effector-react";
+const Map: FC<{
+  metadata: any;
+  indicator: Indicator;
+  center: Position;
+}> = ({ metadata, indicator, center }) => {
   const { isLoading, isError, isSuccess, error, data } = useSqlView(indicator);
+  const store = useStore($store);
   return (
-    <>
-      {isLoading && <Box>Loading</Box>}
+    <Flex
+      h="100%"
+      w="100%"
+      flex={1}
+      direction="column"
+      alignItems="center"
+      justifyItems="center"
+      justifyContent="center"
+    >
+      {isLoading && <Spinner />}
       {isSuccess && (
-        <Plot
-          data={[
-            {
-              type: "choroplethmapbox",
-              locations: metadata.organisationUnits.map(
-                (ou: { id: string; name: string }) => ou.name
-              ),
-              z: metadata.organisationUnits.map(
-                ({ id }) => data.numerators[id] || 0
-              ),
-              featureidkey: "properties.name",
-              geojson: metadata.geojson,
-            } as any,
-          ]}
-          layout={{
-            title: {
-              text: "Test title",
-              font: {
-                // color: "yellow",
+        <>
+          <Text fontSize="md">
+            Map showing vaccination results
+          </Text>
+          <Plot
+            data={[
+              {
+                type: "choroplethmapbox",
+                locations: metadata.organisationUnits.map(
+                  (ou: { id: string; name: string }) => ou.name
+                ),
+                z: metadata.organisationUnits.map(
+                  ({ id }) => data.numerators[id] || 0
+                ),
+                featureidkey: "properties.name",
+                geojson: metadata.geojson,
+              } as any,
+            ]}
+            layout={{
+              mapbox: {
+                style: "open-street-map",
+                center: { lon: center[0], lat: center[1] },
+                zoom: store.zoom,
               },
-            },
-            mapbox: {
-              style: "open-street-map",
-              center: { lon: 32.3, lat: 1.5 },
-              zoom: 6.1,
-            },
-            autosize: true,
-            margin: {
-              pad: 0,
-              r: 0,
-              t: 0,
-              l: 0,
-              b: 0,
-            },
-          }}
-          useResizeHandler={true}
-          style={{ width: "100%", height: "100%" }}
-          config={{ displayModeBar: false, responsive: true }}
-        />
+              autosize: true,
+              margin: {
+                pad: 0,
+                r: 0,
+                t: 0,
+                l: 0,
+                b: 0,
+              },
+            }}
+            useResizeHandler={true}
+            style={{ width: "100%", height: "100%" }}
+            config={{ displayModeBar: false, responsive: true }}
+          />
+        </>
       )}
       {isError && <Box>{error.message}</Box>}
-    </>
+    </Flex>
   );
 };
 

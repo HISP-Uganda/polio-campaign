@@ -1,26 +1,71 @@
-export function processBarData(data: any, dx: string[]): any[] {
-  const days = [
-    "2021-11-28",
-    "2021-12-01",
-    "2021-12-11",
-    "2021-12-12",
-    "2021-12-13",
-  ];
-  const x = ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5"];
-  return dx.map((dataElement) => {
-    const filtered = data.numerators.filter(([p, d, v]) => d === dataElement);
-    const y = days.map((day) => {
-      const search = filtered.find(([p, d, v]) => p === day);
-      if (search) {
-        return search[2];
+import { uniq } from "lodash";
+import { parseISO, format } from "date-fns";
+export function processBarData(
+  data: any,
+  dx: { id: string; name: string }[]
+): any[] {
+  const x = uniq(data.numerators.map(([p]) => p).sort());
+  const realX = x.map((i: any) => format(parseISO(i), "MMM dd"));
+  return dx.map(({ id, name }) => {
+    const y = x.map((i) => {
+      const dt = data.numerators.find(([p, d]) => d === id && i === p);
+      if (dt) {
+        return dt[2];
       }
       return 0;
     });
     return {
-      name: dataElement,
+      name: name,
+      x: realX,
+      y,
+      type: "bar",
+      textposition: "auto",
+      texttemplate: "%{y}",
+      hoverinfo: "none",
+    };
+  });
+}
+
+export function processSublevelData(
+  data: any,
+  dx: { id: string; name: string }[]
+): any[] {
+  const x = uniq(data.numerators.map(([p]) => p).sort());
+  return dx.map(({ id, name }) => {
+    const y = x.map((i) => {
+      const dt = data.numerators.find(([p, d]) => d === id && i === p);
+      if (dt) {
+        return dt[2];
+      }
+      return 0;
+    });
+    return {
+      name: name,
       x,
       y,
       type: "bar",
+      textposition: "auto",
+      texttemplate: "%{y}",
+      hoverinfo: "none",
     };
   });
+}
+
+export function processWastageData(data: any) {
+  return [
+    {
+      type: "bar",
+      y: Object.keys(data.numerators),
+      x: Object.values(data.numerators),
+      orientation: "h",
+      textposition: "inside",
+      texttemplate: "%{x}",
+      barmode: "overlay",
+      showlegend: false,
+      hoverinfo: "none",
+      marker: {
+        color: "rgb(211, 41, 61)",
+      },
+    },
+  ];
 }

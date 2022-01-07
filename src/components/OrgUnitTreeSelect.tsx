@@ -1,13 +1,16 @@
-import "antd/dist/antd.css"; // or 'antd/dist/antd.less'
-import { TreeSelect } from "antd";
-import { flatten } from "lodash";
-import { useEffect, useState } from "react";
 import { useDataEngine } from "@dhis2/app-runtime";
-import { useUserOrgUnit } from "../stores/Queries";
+import { TreeSelect } from "antd";
+import "antd/dist/antd.css"; // or 'antd/dist/antd.less'
 import { useStore } from "effector-react";
+import { flatten } from "lodash";
+import { useState } from "react";
+import {
+  setCurrentLevel,
+  setSelectedUnits,
+  setSublevel,
+  setZoom,
+} from "../stores/Events";
 import { $store } from "../stores/Store";
-import { setSelectedUnits } from "../stores/Events";
-import { Spinner, Stack, Text } from "@chakra-ui/react";
 
 const query = (parent: any) => {
   return {
@@ -17,16 +20,15 @@ const query = (parent: any) => {
         filter: `id:in:[${parent.id}]`,
         paging: "false",
         order: "shortName:desc",
-        fields: "children[id,name,path,leaf]",
+        fields: "children[id,name,level,path,leaf]",
       },
     },
   };
 };
 const OrgUnitTreeSelect = () => {
-  const [units, setUnits] = useState<any[]>([]);
   const store = useStore($store);
+  const [units, setUnits] = useState<any[]>(store.userUnits);
   const engine = useDataEngine();
-  const { data, isError, isLoading, isSuccess, error } = useUserOrgUnit();
   const onLoadData = async (parent: any) => {
     try {
       const {
@@ -41,6 +43,7 @@ const OrgUnitTreeSelect = () => {
               value: child.id,
               title: child.name,
               isLeaf: child.leaf,
+              level: child.level,
             };
           })
           .sort((a: any, b: any) => {
@@ -59,32 +62,45 @@ const OrgUnitTreeSelect = () => {
     }
   };
 
-  useEffect(() => {
-    if (data && units.length === 0) {
-      setUnits(data);
-    }
-  }, [data, units]);
+  const onOrgUnitChange = (value: string) => {
+    const unitObj = {
+      1: 3,
+      2: 3,
+      3: 4,
+      4: 4,
+    };
+    const zooms = {
+      1: 6.0,
+      2: 7.5,
+      3: 9.0,
+      4: 9.0,
+    };
+    const unit = units.find((u: any) => u.id === value);
+    setCurrentLevel(unitObj[unit.level] || 3);
+    setSelectedUnits(value);
+    setSublevel(unit.level + 2);
+    setZoom(zooms[unit.level] || 6.0);
+  };
 
   return (
-    <div>
-      {isLoading && <Spinner />}
-      {isSuccess && (
-        <TreeSelect
-          allowClear={true}
-          treeDataSimpleMode
-          size="large"
-          showArrow
-          style={{ width: "40%" }}
-          value={store.selectedUnits}
-          dropdownStyle={{ maxHeight: 400, overflow: "auto" }}
-          placeholder="Please select health centre"
-          onChange={(value) => setSelectedUnits(value)}
-          loadData={onLoadData}
-          treeData={units}
-        />
-      )}
-      {isError && <pre>{JSON.stringify(error)}</pre>}
-    </div>
+    <TreeSelect
+      allowClear={true}
+      treeDataSimpleMode
+      size="large"
+      showArrow
+      style={{ width: "20%" }}
+      value={store.selectedUnits}
+      dropdownStyle={{
+        maxHeight: 400,
+        overflow: "auto",
+        backgroundColor: "yellow",
+        zIndex: 100000,
+      }}
+      placeholder="Please select health centre"
+      onChange={onOrgUnitChange}
+      loadData={onLoadData}
+      treeData={units}
+    />
   );
 };
 

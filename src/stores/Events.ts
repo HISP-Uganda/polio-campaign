@@ -5,3 +5,7 @@ export const setGeojson = domain.createEvent<any>();
 export const setLocations =
   domain.createEvent<{ id: string; name: string }[]>();
 export const setSelectedUnits = domain.createEvent<string>();
+export const setUserUnits = domain.createEvent<any[]>();
+export const setCurrentLevel = domain.createEvent<number>();
+export const setZoom = domain.createEvent<number>();
+export const setSublevel = domain.createEvent<number>();

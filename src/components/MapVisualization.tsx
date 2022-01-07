@@ -1,23 +1,31 @@
-import { Box, Stack, Text } from "@chakra-ui/react";
+import { Box, Flex, Spinner, Text } from "@chakra-ui/react";
+import { useStore } from "effector-react";
 import { FC } from "react";
 import { Indicator } from "../interfaces";
 import { useMaps } from "../stores/Queries";
+import { $store } from "../stores/Store";
 import Map from "./Map";
 const MapVisualization: FC<{ indicator: Indicator }> = ({ indicator }) => {
-  const { isLoading, isError, isSuccess, error, data } = useMaps();
+  const store = useStore($store);
+  const { isLoading, isError, isSuccess, error, data } = useMaps(
+    store.currentLevel,
+    store.selectedUnits
+  );
   return (
-    <>
-      {isLoading && <Box>Loading...</Box>}
+    <Flex
+      direction="column"
+      h="100%"
+      justifyContent="center"
+      alignItems="center"
+      justifyItems="center"
+      alignContent="center"
+    >
+      {isLoading && <Spinner />}
       {isSuccess && (
-        <Stack h="100%" bg="white" minH="480px">
-          <Text fontSize="2xl" textAlign="center">
-            Map showing vaccination results
-          </Text>
-          <Map metadata={data} indicator={indicator} />
-        </Stack>
+        <Map metadata={data} indicator={indicator} center={data.mapCenter} />
       )}
       {isError && <Box>{error.message}</Box>}
-    </>
+    </Flex>
   );
 };
 

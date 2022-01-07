@@ -2,17 +2,36 @@ import { useDataEngine } from "@dhis2/app-runtime";
 import { useQuery } from "react-query";
 import { fromPairs, isEmpty } from "lodash";
 import { Indicator } from "../interfaces";
+import { setSelectedUnits, setUserUnits } from "./Events";
+import { center } from "@turf/turf";
 
 export function useLoader() {
   const engine = useDataEngine();
   const query = {
     me: {
       resource: "me.json",
+      params: {
+        fields: "organisationUnits[id,level,name,leaf]",
+      },
     },
   };
   return useQuery<any, Error>("initial", async () => {
-    const { me }: any = await engine.query(query);
-    return me;
+    const {
+      me: { organisationUnits },
+    }: any = await engine.query(query);
+    const processedUnits = organisationUnits.map((unit: any) => {
+      return {
+        id: unit.id,
+        pId: unit.pId || "",
+        value: unit.id,
+        title: unit.name,
+        isLeaf: unit.leaf,
+        level: unit.level,
+      };
+    });
+    setUserUnits(processedUnits);
+    setSelectedUnits(processedUnits[0].id);
+    return true;
   });
 }
 
@@ -94,18 +113,19 @@ export function useSqlView(indicator: Indicator) {
       };
     },
     {
-      refetchInterval: 1000 * 5,
+      // refetchInterval: 1000 * 5,
     }
   );
 }
 
-export const useMaps = (level = 3) => {
+export const useMaps = (level: number, parent: string) => {
   const engine = useDataEngine();
   const query = {
     geojson: {
       resource: "organisationUnits.geojson",
       params: {
         level,
+        parent,
       },
     },
     locations: {
@@ -118,13 +138,15 @@ export const useMaps = (level = 3) => {
     },
   };
 
-  return useQuery<any, Error>("initial", async () => {
+  return useQuery<any, Error>(["maps", level, parent], async () => {
     const {
       geojson,
       locations: { organisationUnits },
     }: any = await engine.query(query);
+    const mapCenter = center(geojson).geometry.coordinates;
     return {
       geojson,
+      mapCenter,
       organisationUnits,
     };
   });
