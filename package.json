@@ -36,8 +36,12 @@
     "plotly.js": "^2.6.4",
     "react-full-screen": "^1.1.0",
     "react-location": "^3.3.0",
+    "react-marquee-slider": "^1.1.5",
     "react-plotly.js": "^2.5.1",
     "react-query": "^3.33.4",
-    "react-timer-hook": "^3.0.5"
+    "react-spring": "^9.4.1",
+    "react-timer-hook": "^3.0.5",
+    "react-useinterval": "^1.0.2",
+    "styled-components": "^5.3.3"
   }
 }

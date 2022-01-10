@@ -5,7 +5,10 @@ import { Indicator } from "../interfaces";
 import { useMaps } from "../stores/Queries";
 import { $store } from "../stores/Store";
 import Map from "./Map";
-const MapVisualization: FC<{ indicator: Indicator }> = ({ indicator }) => {
+const MapVisualization: FC<{ indicator: Indicator; title: string }> = ({
+  indicator,
+  title,
+}) => {
   const store = useStore($store);
   const { isLoading, isError, isSuccess, error, data } = useMaps(
     store.currentLevel,
@@ -22,7 +25,12 @@ const MapVisualization: FC<{ indicator: Indicator }> = ({ indicator }) => {
     >
       {isLoading && <Spinner />}
       {isSuccess && (
-        <Map metadata={data} indicator={indicator} center={data.mapCenter} />
+        <Map
+          metadata={data}
+          indicator={indicator}
+          center={data.mapCenter}
+          title={title}
+        />
       )}
       {isError && <Box>{error.message}</Box>}
     </Flex>

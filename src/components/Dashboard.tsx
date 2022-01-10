@@ -1,22 +1,24 @@
 import {
   Box,
   Button,
+  chakra,
   Flex,
   Grid,
   GridItem,
   HStack,
-  VStack,
+  HTMLChakraProps,
   Image,
   Spacer,
-  Text,
   useBreakpointValue,
   useColorMode,
   useColorModeValue,
-  Progress,
+  VStack,
 } from "@chakra-ui/react";
 import { useStore } from "effector-react";
+import { HTMLMotionProps, motion } from "framer-motion";
 import { useState } from "react";
 import { FullScreen, useFullScreenHandle } from "react-full-screen";
+import useInterval from "react-useinterval";
 import { processWastageData } from "../stores/DataProcessors";
 import { mainDashboard } from "../stores/Indicators";
 import { $store } from "../stores/Store";
@@ -26,20 +28,101 @@ import MapVisualization from "./MapVisualization";
 import OrgUnitTreeSelect from "./OrgUnitTreeSelect";
 import SingleValue from "./SingleValue";
 import Speed from "./Speed";
+
+type Merge<P, T> = Omit<P, keyof T> & T;
+
+type MotionBoxProps = Merge<HTMLChakraProps<"div">, HTMLMotionProps<"div">>;
+
+export const MotionBox: React.FC<MotionBoxProps> = motion(chakra.div);
+
 const Dashboard = () => {
-  const comps = [<Box>1</Box>, <Box>2</Box>, <Box>3</Box>, <Box>4</Box>];
   const [current, setCurrent] = useState<number>(0);
-  // setTimeout(() => {
-  //   if (current === comps.length - 1) {
-  //     setCurrent(0);
-  //   } else {
-  //     setCurrent(current + 1);
-  //   }
-  // }, 2000);
+  const [index, setIndex] = useState<number>(0);
+  const store = useStore($store);
+
+  const slides = [
+    <MotionBox
+      key={1}
+      initial={{
+        opacity: 0,
+        translateY: -50,
+        translateX: -50,
+      }}
+      animate={{
+        opacity: 1,
+        translateY: 0,
+        translateX: 0,
+      }}
+      transition={{ duration: 0.4 }}
+    >
+      <HStack spacing="20px">
+        <SingleValue
+          direction="row"
+          indicator={mainDashboard.posts(store.selectedUnits)}
+          title="Sub-counties"
+        />
+        <SingleValue
+          direction="row"
+          indicator={mainDashboard.reported(store.selectedUnits)}
+          title="Reported"
+        />
+        <SingleValue
+          direction="row"
+          indicator={mainDashboard.rates(store.selectedUnits)}
+          title="Reporting Rates"
+          hasProgress
+          postfix="%"
+        />
+        <SingleValue
+          direction="row"
+          indicator={mainDashboard.totalWorkers(store.selectedUnits)}
+          title="Total Workers"
+        />
+      </HStack>
+    </MotionBox>,
+    <MotionBox
+      key={2}
+      initial={{
+        opacity: 0,
+        translateY: -50,
+        translateX: -50,
+      }}
+      animate={{
+        opacity: 1,
+        translateY: 0,
+        translateX: 0,
+      }}
+      transition={{ duration: 0.4 }}
+    >
+      <HStack spacing="20px">
+        <SingleValue
+          direction="row"
+          indicator={mainDashboard.posts(store.selectedUnits)}
+          title="Sub-counties"
+        />
+        <SingleValue
+          direction="row"
+          indicator={mainDashboard.reported(store.selectedUnits)}
+          title="Reported"
+        />
+        <SingleValue
+          direction="row"
+          indicator={mainDashboard.rates(store.selectedUnits)}
+          title="Reporting Rates"
+          hasProgress
+          postfix="%"
+        />
+        <SingleValue
+          direction="row"
+          indicator={mainDashboard.totalWorkers(store.selectedUnits)}
+          title="Total Workers"
+        />
+      </HStack>
+    </MotionBox>,
+  ];
 
   const { colorMode, toggleColorMode } = useColorMode();
   const handle = useFullScreenHandle();
-  const store = useStore($store);
   const templateColumns = useBreakpointValue({
     base: "100%",
     lg: "repeat(12, 1fr)",
@@ -51,6 +134,59 @@ const Dashboard = () => {
   const bg = useColorModeValue("white", "#2D3748");
   const realBg = useColorModeValue("gray.300", "gray.900");
   const yColor = useColorModeValue("black", "white");
+  const increment = () => setCurrent((s: number) => (s + 1) % slides.length);
+  const maps = [
+    <MotionBox
+      key="performance"
+      h="100%"
+      initial={{
+        opacity: 0,
+        // translateY: -50,
+        // translateX: -50,
+      }}
+      animate={{
+        opacity: 1,
+        // translateY: 0,
+        // translateX: 0,
+      }}
+      transition={{ duration: 1 }}
+    >
+      <MapVisualization
+        indicator={mainDashboard.districts(
+          store.selectedUnits,
+          store.currentLevel + 1
+        )}
+        title="Total vaccinated"
+      />
+    </MotionBox>,
+    <MotionBox
+      key="wastage"
+      h="100%"
+      initial={{
+        opacity: 0,
+        // translateY: -50,
+        // translateX: -50,
+      }}
+      animate={{
+        opacity: 1,
+        // translateY: 0,
+        // translateX: 0,
+      }}
+      transition={{ duration: 1 }}
+    >
+      <MapVisualization
+        indicator={mainDashboard.districtsWastage(
+          store.selectedUnits,
+          store.currentLevel + 1
+        )}
+        title="Wastage summary"
+      />
+    </MotionBox>,
+  ];
+
+  const incrementMaps = () => setIndex((s: number) => (s + 1) % maps.length);
+  useInterval(increment, 1000 * 10);
+  useInterval(incrementMaps, 1000 * 30);
   return (
     <FullScreen handle={handle}>
       <Box bg={realBg} p="5px">
@@ -186,7 +322,12 @@ const Dashboard = () => {
                     title="Vaccinated"
                   />
                   <SingleValue
+                    indicator={mainDashboard.zeroDose(store.selectedUnits)}
+                    title="Zero Dose"
+                  />
+                  <SingleValue
                     indicator={mainDashboard.coverage(store.selectedUnits)}
+                    postfix="%"
                     title="Coverage"
                   />
                   {/* <SingleValue
@@ -247,7 +388,7 @@ const Dashboard = () => {
                         />
                         <SingleValue
                           indicator={mainDashboard.balance(store.selectedUnits)}
-                          title="Available"
+                          title="Usable"
                         />
                       </Flex>
                     </Flex>
@@ -263,12 +404,7 @@ const Dashboard = () => {
                 </Grid>
               </GridItem>
               <GridItem rowSpan={4} bg={bg}>
-                <MapVisualization
-                  indicator={mainDashboard.districts(
-                    store.selectedUnits,
-                    store.currentLevel + 1
-                  )}
-                />
+                {maps[index]}
               </GridItem>
             </Grid>
           </GridItem>
@@ -283,7 +419,15 @@ const Dashboard = () => {
                   h="auto"
                 />
               </Box>
-              <Spacer />
+              <Flex
+                flex={1}
+                w="100%"
+                h="100%"
+                alignItems="center"
+                justifyContent="center"
+              >
+                {slides[current]}
+              </Flex>
               <Box>
                 <Image
                   src="https://raw.githubusercontent.com/HISP-Uganda/covid-dashboard/master/src/images/logo.png"

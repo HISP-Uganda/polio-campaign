@@ -24,7 +24,7 @@ const HorizontalBar: FC<{
       {isSuccess && (
         <>
           <Text textAlign="center" fontSize="md">
-            Wastage Summary
+            Summary of Unusable Vials
           </Text>
           <Plot
             data={processor(data)}

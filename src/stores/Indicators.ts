@@ -146,7 +146,19 @@ export const mainDashboard: { [key: string]: func } = {
     return {
       numerator: {
         sqlView: "XMsx2OmhqBa",
-        parameters: { parent, dx: "rkPK3fYEJzh" },
+        parameters: { parent, dx: "Tk6RjMskA93" },
+      },
+      denominator: {
+        sqlView: "ezh2YYPPeLN",
+        parameters: {},
+      },
+    };
+  },
+  zeroDose: (parent) => {
+    return {
+      numerator: {
+        sqlView: "XMsx2OmhqBa",
+        parameters: { parent, dx: "gpdvfDm3eVp" },
       },
       denominator: {
         sqlView: "ezh2YYPPeLN",
@@ -158,7 +170,7 @@ export const mainDashboard: { [key: string]: func } = {
     return {
       numerator: {
         sqlView: "XMsx2OmhqBa",
-        parameters: { parent, dx: "rkPK3fYEJzh" },
+        parameters: { parent, dx: "Tk6RjMskA93" },
       },
       denominator: {
         sqlView: "XMsx2OmhqBa",
@@ -233,6 +245,22 @@ export const mainDashboard: { [key: string]: func } = {
       numerator: {
         sqlView: "zHnhTlh7Hbd",
         parameters: {
+          dx: "Tk6RjMskA93",
+          part,
+          parent,
+        },
+      },
+      denominator: {
+        sqlView: "ezh2YYPPeLN",
+        parameters: {},
+      },
+    };
+  },
+  districtsWastage: (parent, part) => {
+    return {
+      numerator: {
+        sqlView: "zHnhTlh7Hbd",
+        parameters: {
           dx: "K3QB60hWuQI",
           part,
           parent,
@@ -250,6 +278,20 @@ export const mainDashboard: { [key: string]: func } = {
         sqlView: "PiiwBdbBm7Z",
         parameters: {
           dx: "K3QB60hWuQI",
+          parent,
+        },
+      },
+      denominator: {
+        sqlView: "ezh2YYPPeLN",
+        parameters: {},
+      },
+    };
+  },
+  table: (parent) => {
+    return {
+      numerator: {
+        sqlView: "K7bTNXbz37B",
+        parameters: {
           parent,
         },
       },

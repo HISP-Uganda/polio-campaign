@@ -109,11 +109,13 @@ export function useSqlView(indicator: Indicator) {
       }
       return {
         numerators,
+        numHeaders,
+        denHeaders,
         denominators,
       };
     },
     {
-      // refetchInterval: 1000 * 5,
+      refetchInterval: 1000 * 5,
     }
   );
 }

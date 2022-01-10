@@ -1,15 +1,23 @@
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react";
 import { useStore } from "effector-react";
-import React, { FC } from "react";
+import { FC, useState } from "react";
+import useInterval from "react-useinterval";
+
 import { processBarData, processSublevelData } from "../stores/DataProcessors";
 import { mainDashboard } from "../stores/Indicators";
 import { $store } from "../stores/Store";
 import { BarGraph } from "./BarGraph";
+import TableVisualization from "./TableVisualization";
 const MainGraphs: FC<{ yColor: string; bg: string }> = ({ yColor, bg }) => {
   const store = useStore($store);
-  const [tabIndex, setTabIndex] = React.useState(0);
+  const [tabIndex, setTabIndex] = useState<number>(0);
+
+  const increment = () => setTabIndex((s: number) => (s + 1) % 5);
+  useInterval(increment, 1000 * 60 * 2);
+
   return (
     <Tabs
+      index={tabIndex}
       onChange={(index) => setTabIndex(index)}
       h={["auto", "auto", "100%"]}
       w="100%"
@@ -88,7 +96,9 @@ const MainGraphs: FC<{ yColor: string; bg: string }> = ({ yColor, bg }) => {
           />
         </TabPanel>
         <TabPanel h="100%" p={0} m={0}>
-          <p>Under implementation</p>
+          <TableVisualization
+            indicator={mainDashboard.table(store.selectedUnits)}
+          />
         </TabPanel>
       </TabPanels>
     </Tabs>

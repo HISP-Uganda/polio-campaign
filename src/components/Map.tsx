@@ -10,7 +10,8 @@ const Map: FC<{
   metadata: any;
   indicator: Indicator;
   center: Position;
-}> = ({ metadata, indicator, center }) => {
+  title:string;
+}> = ({ metadata, indicator, center,title }) => {
   const { isLoading, isError, isSuccess, error, data } = useSqlView(indicator);
   const store = useStore($store);
   return (
@@ -27,7 +28,7 @@ const Map: FC<{
       {isSuccess && (
         <>
           <Text fontSize="md">
-            Map showing vaccination results
+            {title}
           </Text>
           <Plot
             data={[

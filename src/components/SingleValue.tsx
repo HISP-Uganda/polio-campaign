@@ -3,7 +3,7 @@ import {
   CircularProgressLabel,
   Spinner,
   Text,
-  VStack,
+  Stack,
 } from "@chakra-ui/react";
 import { FC } from "react";
 import { Indicator } from "../interfaces";
@@ -14,15 +14,16 @@ const ST: FC<{
   title: string;
   postfix?: string;
   hasProgress?: boolean;
-}> = ({ title, data, postfix, hasProgress }) => {
+  direction?: "column" | "row";
+}> = ({ title, data, postfix, hasProgress, direction = "column" }) => {
   return (
-    <VStack
-      spacing={0}
+    <Stack
+      spacing={direction === "column" ? 0 : "10px"}
       h="100%"
       justifyContent="center"
       alignItems="center"
-      alignItemsAlign="center"
       justifyItems="center"
+      direction={direction}
     >
       <Text
         textTransform="uppercase"
@@ -38,7 +39,7 @@ const ST: FC<{
         })}
         {postfix}
       </Text>
-    </VStack>
+    </Stack>
   );
 };
 
@@ -48,12 +49,11 @@ const PR: FC<{ data: any; title: string; postfix?: string }> = ({
   postfix,
 }) => {
   return (
-    <VStack
+    <Stack
       spacing={0}
       h="100%"
       justifyContent="center"
       alignItems="center"
-      alignItemsAlign="center"
       justifyItems="center"
     >
       <Text textTransform="uppercase" fontWeight="medium" fontSize="1.2vw">
@@ -67,7 +67,7 @@ const PR: FC<{ data: any; title: string; postfix?: string }> = ({
           {postfix}
         </CircularProgressLabel>
       </CircularProgress>
-    </VStack>
+    </Stack>
   );
 };
 
@@ -76,13 +76,21 @@ const SingleValue: FC<{
   title: string;
   postfix?: string;
   hasProgress?: boolean;
-}> = ({ indicator, title, postfix = "", hasProgress = false }) => {
+  direction?: "column" | "row";
+}> = ({
+  indicator,
+  title,
+  postfix = "",
+  hasProgress = false,
+  direction = "column",
+}) => {
   const { isLoading, isError, isSuccess, error, data } = useSqlView(indicator);
   return (
-    <VStack h="100%" justifyItems="center" justifyContent="center">
+    <Stack h="100%" justifyItems="center" justifyContent="center">
       {isLoading && <Spinner />}
       {isSuccess && (
         <ST
+          direction={direction}
           title={title}
           data={
             Number(data.numerators) !== NaN && Number(data.denominators) !== NaN
@@ -96,7 +104,7 @@ const SingleValue: FC<{
         />
       )}
       {isError && <pre>{JSON.stringify(error)}</pre>}
-    </VStack>
+    </Stack>
   );
 };
 
