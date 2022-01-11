@@ -9,23 +9,36 @@ import {
   HTMLChakraProps,
   Image,
   Spacer,
+  Stack,
+  Text,
   useBreakpointValue,
   useColorMode,
   useColorModeValue,
   VStack,
 } from "@chakra-ui/react";
+import { Select } from "chakra-react-select";
 import { useStore } from "effector-react";
 import { HTMLMotionProps, motion } from "framer-motion";
 import { useState } from "react";
 import { FullScreen, useFullScreenHandle } from "react-full-screen";
 import useInterval from "react-useinterval";
-import { processWastageData } from "../stores/DataProcessors";
+import {
+  calculateReportingRates,
+  calculateStockIndicators,
+  computeStaffTarget,
+  computeTeamsReported,
+  computeTeamsTarget,
+  computeWastage,
+  processSingleValue,
+  processWastageData,
+} from "../stores/DataProcessors";
+import { setDays } from "../stores/Events";
 import { mainDashboard } from "../stores/Indicators";
-import { $store } from "../stores/Store";
-import HorizontalBar from "./HorizontalBar";
+import { $days, $realDays, $store } from "../stores/Store";
 import MainGraphs from "./MainGraphs";
 import MapVisualization from "./MapVisualization";
 import OrgUnitTreeSelect from "./OrgUnitTreeSelect";
+import PieChart from "./PieChart";
 import SingleValue from "./SingleValue";
 import Speed from "./Speed";
 
@@ -39,6 +52,8 @@ const Dashboard = () => {
   const [current, setCurrent] = useState<number>(0);
   const [index, setIndex] = useState<number>(0);
   const store = useStore($store);
+  const days = useStore($days);
+  const realDays = useStore($realDays);
 
   const slides = [
     <MotionBox
@@ -55,28 +70,26 @@ const Dashboard = () => {
       }}
       transition={{ duration: 0.4 }}
     >
-      <HStack spacing="20px">
+      <HStack h="100%" w="100%">
         <SingleValue
+          processor={processSingleValue}
           direction="row"
-          indicator={mainDashboard.posts(store.selectedUnits)}
+          indicator={mainDashboard.posts(store.selectedUnits, days)}
           title="Sub-counties"
         />
         <SingleValue
+          processor={processSingleValue}
           direction="row"
-          indicator={mainDashboard.reported(store.selectedUnits)}
+          indicator={mainDashboard.reported(store.selectedUnits, days)}
           title="Reported"
         />
         <SingleValue
+          processor={calculateReportingRates}
           direction="row"
-          indicator={mainDashboard.rates(store.selectedUnits)}
+          indicator={mainDashboard.rates(store.selectedUnits, days)}
           title="Reporting Rates"
           hasProgress
           postfix="%"
-        />
-        <SingleValue
-          direction="row"
-          indicator={mainDashboard.totalWorkers(store.selectedUnits)}
-          title="Total Workers"
         />
       </HStack>
     </MotionBox>,
@@ -96,25 +109,29 @@ const Dashboard = () => {
     >
       <HStack spacing="20px">
         <SingleValue
+          processor={processSingleValue}
           direction="row"
-          indicator={mainDashboard.posts(store.selectedUnits)}
+          indicator={mainDashboard.posts(store.selectedUnits, days)}
           title="Sub-counties"
         />
         <SingleValue
+          processor={processSingleValue}
           direction="row"
-          indicator={mainDashboard.reported(store.selectedUnits)}
+          indicator={mainDashboard.reported(store.selectedUnits, days)}
           title="Reported"
         />
         <SingleValue
+          processor={calculateReportingRates}
           direction="row"
-          indicator={mainDashboard.rates(store.selectedUnits)}
+          indicator={mainDashboard.rates(store.selectedUnits, days)}
           title="Reporting Rates"
           hasProgress
           postfix="%"
         />
         <SingleValue
+          processor={processSingleValue}
           direction="row"
-          indicator={mainDashboard.totalWorkers(store.selectedUnits)}
+          indicator={mainDashboard.totalWorkers(store.selectedUnits, days)}
           title="Total Workers"
         />
       </HStack>
@@ -141,20 +158,17 @@ const Dashboard = () => {
       h="100%"
       initial={{
         opacity: 0,
-        // translateY: -50,
-        // translateX: -50,
       }}
       animate={{
         opacity: 1,
-        // translateY: 0,
-        // translateX: 0,
       }}
       transition={{ duration: 1 }}
     >
       <MapVisualization
         indicator={mainDashboard.districts(
           store.selectedUnits,
-          store.currentLevel + 1
+          store.currentLevel + 1,
+          days
         )}
         title="Total vaccinated"
       />
@@ -164,20 +178,17 @@ const Dashboard = () => {
       h="100%"
       initial={{
         opacity: 0,
-        // translateY: -50,
-        // translateX: -50,
       }}
       animate={{
         opacity: 1,
-        // translateY: 0,
-        // translateX: 0,
       }}
       transition={{ duration: 1 }}
     >
       <MapVisualization
         indicator={mainDashboard.districtsWastage(
           store.selectedUnits,
-          store.currentLevel + 1
+          store.currentLevel + 1,
+          days
         )}
         title="Wastage summary"
       />
@@ -198,12 +209,37 @@ const Dashboard = () => {
           />
           <Button>OPV Campaign</Button>
           <Button>Routine Immunization</Button>
-
           <Spacer />
           <Button onClick={toggleColorMode} ml="400px">
             Toggle {colorMode === "light" ? "Dark" : "Light"}
           </Button>
           <Button onClick={handle.enter}>Enter fullscreen</Button>
+          <Box w="370px" bg="white">
+            <Select
+              value={store.days}
+              hideSelectedOptions={false}
+              selectedOptionStyle="check"
+              onChange={(value: any, actions: any) => {
+                console.log(actions);
+                setDays(value);
+              }}
+              isMulti
+              options={[
+                {
+                  label: "Day 1",
+                  value: "10144",
+                },
+                {
+                  label: "Day 2",
+                  value: "10145",
+                },
+                {
+                  label: "Day 3",
+                  value: "10146",
+                },
+              ]}
+            />
+          </Box>
           <OrgUnitTreeSelect />
         </HStack>
         <Grid
@@ -225,119 +261,281 @@ const Dashboard = () => {
               gap={1}
               h="100%"
             >
-              <GridItem
-                direction="column"
-                bg={bg}
-                colSpan={4}
-                justifyContent="center"
-                justifyItems="center"
-              >
-                <Flex
-                  direction="row"
-                  justifyContent="space-around"
-                  justifyItems="center"
-                  alignItems="center"
-                  h="100%"
-                >
-                  <SingleValue
-                    indicator={mainDashboard.posts(store.selectedUnits)}
-                    title="Sub-counties"
-                  />
-                  <SingleValue
-                    indicator={mainDashboard.reported(store.selectedUnits)}
-                    title="Reported"
-                  />
-                  <SingleValue
-                    indicator={mainDashboard.rates(store.selectedUnits)}
-                    title="Reporting Rates"
-                    hasProgress
-                    postfix="%"
-                  />
-                  <SingleValue
-                    indicator={mainDashboard.totalWorkers(store.selectedUnits)}
-                    title="Total Workers"
-                  />
-                </Flex>
+              <GridItem bg={bg} colSpan={4}>
+                <Stack direction="column" spacing={0}>
+                  <Flex
+                    alignItems="center"
+                    bg="gray.200"
+                    h="30px"
+                    alignContent="center"
+                    justifyItems="center"
+                  >
+                    <Text
+                      pl="25px"
+                      h="20px"
+                      textTransform="uppercase"
+                      fontWeight="bold"
+                      fontSize="0.8vw"
+                      color="gray.500"
+                      isTruncated
+                    >
+                      Reporting Rates
+                    </Text>
+                  </Flex>
+                  <HStack
+                    flex={1}
+                    justifyItems="space-around"
+                    justifyContent="space-around"
+                    h="100%"
+                    w="100%"
+                  >
+                    <SingleValue
+                      processor={processSingleValue}
+                      indicator={mainDashboard.posts(store.selectedUnits, days)}
+                      title="Sub-counties"
+                    />
+                    <SingleValue
+                      processor={processSingleValue}
+                      indicator={mainDashboard.reported(
+                        store.selectedUnits,
+                        days
+                      )}
+                      title="Reported"
+                    />
+                    <SingleValue
+                      processor={calculateReportingRates}
+                      indicator={mainDashboard.rates(store.selectedUnits, days)}
+                      title="Reporting Rates"
+                      postfix="%"
+                    />
+                  </HStack>
+                </Stack>
               </GridItem>
-              <GridItem rowSpan={2} colSpan={2} bg={bg}>
+              <GridItem colSpan={2} bg={bg} h="100%">
                 <Grid h="100%" bg={bg}>
                   <GridItem>
-                    <VStack
-                      justifyItems="space-between"
-                      justifyContent="space-between"
-                      w="100%"
-                      h="100%"
-                    >
+                    <Stack spacing={0} h="100%" w="100%">
                       <Flex
-                        direction="row"
-                        justifyContent="space-around"
-                        justifyItems="center"
                         alignItems="center"
+                        bg="gray.200"
+                        h="30px"
+                        alignContent="center"
+                        justifyItems="center"
+                      >
+                        <Text
+                          pl="25px"
+                          h="20px"
+                          textTransform="uppercase"
+                          fontWeight="bold"
+                          fontSize="0.8vw"
+                          color="gray.500"
+                          isTruncated
+                        >
+                          Surveillance
+                        </Text>
+                      </Flex>
+                      <HStack
+                        justifyItems="space-around"
+                        justifyContent="space-around"
                         w="100%"
                         h="100%"
+                        flex={1}
                       >
                         <SingleValue
+                          processor={processSingleValue}
                           indicator={mainDashboard.aefiCases(
-                            store.selectedUnits
+                            store.selectedUnits,
+                            days
                           )}
                           title="AEFI Cases"
                         />
                         <SingleValue
+                          processor={processSingleValue}
                           indicator={mainDashboard.afpCases(
-                            store.selectedUnits
+                            store.selectedUnits,
+                            days
                           )}
                           title="AFP Cases"
                         />
-                      </Flex>
-                    </VStack>
-                  </GridItem>
-                  <GridItem>
-                    <Speed
-                      indicator={mainDashboard.coverage(store.selectedUnits)}
-                      title="Vaccination Coverage"
-                    />
+                      </HStack>
+                    </Stack>
                   </GridItem>
                 </Grid>
               </GridItem>
               <GridItem
                 direction="column"
                 justifyContent="center"
-                colSpan={4}
+                colSpan={6}
                 bg={bg}
                 justifyItems="center"
               >
-                <Flex
-                  direction="row"
-                  justifyContent="space-around"
-                  justifyItems="center"
-                  alignItems="center"
-                  h="100%"
-                >
-                  <SingleValue
-                    indicator={mainDashboard.target(store.selectedUnits)}
-                    title="Target"
-                  />
-                  <SingleValue
-                    indicator={mainDashboard.vaccinated(store.selectedUnits)}
-                    title="Vaccinated"
-                  />
-                  <SingleValue
-                    indicator={mainDashboard.zeroDose(store.selectedUnits)}
-                    title="Zero Dose"
-                  />
-                  <SingleValue
-                    indicator={mainDashboard.coverage(store.selectedUnits)}
-                    postfix="%"
-                    title="Coverage"
-                  />
-                  {/* <SingleValue
-                    indicator={mainDashboard.posts(store.selectedUnits)}
-                    title="Workload"
-                  /> */}
-                </Flex>
+                <Stack spacing={0} h="100%">
+                  <Flex
+                    alignItems="center"
+                    bg="gray.200"
+                    h="30px"
+                    alignContent="center"
+                    justifyItems="center"
+                  >
+                    <Text
+                      pl="25px"
+                      h="20px"
+                      textTransform="uppercase"
+                      fontWeight="bold"
+                      fontSize="0.8vw"
+                      color="gray.500"
+                      isTruncated
+                    >
+                      Performance & Progress
+                    </Text>
+                  </Flex>
+                  <Flex
+                    direction="row"
+                    justifyContent="space-around"
+                    justifyItems="center"
+                    alignItems="center"
+                    h="100%"
+                    flex={1}
+                  >
+                    <SingleValue
+                      processor={processSingleValue}
+                      indicator={mainDashboard.target(store.selectedUnits)}
+                      title="Target"
+                    />
+                    <SingleValue
+                      processor={processSingleValue}
+                      indicator={mainDashboard.vaccinated(
+                        store.selectedUnits,
+                        days
+                      )}
+                      title="Vaccinated"
+                    />
+                    <SingleValue
+                      processor={processSingleValue}
+                      indicator={mainDashboard.zeroDose(
+                        store.selectedUnits,
+                        days
+                      )}
+                      title="Zero Dose"
+                    />
+                    <SingleValue
+                      processor={processSingleValue}
+                      indicator={mainDashboard.coverage(
+                        store.selectedUnits,
+                        days
+                      )}
+                      postfix="%"
+                      hasProgress
+                      title="Coverage"
+                    />
+                    <Box w="350px">
+                      <Speed
+                        indicator={mainDashboard.coverage(
+                          store.selectedUnits,
+                          days
+                        )}
+                        title="Vaccination Coverage"
+                      />
+                    </Box>
+                    <SingleValue
+                      processor={computeWastage}
+                      indicator={mainDashboard.realWastage(
+                        store.selectedUnits,
+                        days
+                      )}
+                      postfix="%"
+                      hasProgress
+                      title="Wastage"
+                    />
+                  </Flex>
+                </Stack>
               </GridItem>
-              <GridItem rowSpan={4} colSpan={6} bg={bg}>
-                <MainGraphs yColor={yColor} bg={bg} />
+              <GridItem rowSpan={4} colSpan={5} bg={bg} h="100%" w="100%">
+                <Stack spacing={0} h="100%">
+                  <Flex
+                    alignItems="center"
+                    bg="gray.200"
+                    h="30px"
+                    alignContent="center"
+                    justifyItems="center"
+                  >
+                    <Text
+                      pl="25px"
+                      h="20px"
+                      textTransform="uppercase"
+                      fontWeight="bold"
+                      fontSize="0.8vw"
+                      color="gray.500"
+                      isTruncated
+                    >
+                      Overall Performance
+                    </Text>
+                  </Flex>
+                  <MainGraphs yColor={yColor} bg={bg} />
+                </Stack>
+              </GridItem>
+              <GridItem rowSpan={4} bg={bg} h="100%" w="100%">
+                <Stack h="100%" spacing={0}>
+                  <Flex
+                    alignItems="center"
+                    bg="gray.200"
+                    h="30px"
+                    alignContent="center"
+                    justifyItems="center"
+                  >
+                    <Text
+                      pl="25px"
+                      h="20px"
+                      textTransform="uppercase"
+                      fontWeight="bold"
+                      fontSize="0.8vw"
+                      color="gray.500"
+                      isTruncated
+                    >
+                      Workers & Teams
+                    </Text>
+                  </Flex>
+
+                  <VStack
+                    h="100%"
+                    flex={1}
+                    alignItems="space-around"
+                    justifyItems="space-around"
+                    justifyContent="space-around"
+                    alignContent="space-around"
+                  >
+                    <SingleValue
+                      processor={computeStaffTarget}
+                      otherArgs={[realDays]}
+                      indicator={mainDashboard.staffTarget(store.selectedUnits)}
+                      title="Total Target"
+                    />
+                    <SingleValue
+                      processor={processSingleValue}
+                      indicator={mainDashboard.staffReported(
+                        store.selectedUnits,
+                        days
+                      )}
+                      title="Total Reported"
+                    />
+                    <SingleValue
+                      processor={computeTeamsTarget}
+                      indicator={mainDashboard.staffTeamTarget(
+                        store.selectedUnits
+                      )}
+                      title="Target Teams"
+                      otherArgs={[realDays]}
+                    />
+                    <SingleValue
+                      processor={computeTeamsReported}
+                      indicator={mainDashboard.staffTeamReported(
+                        store.selectedUnits,
+                        days
+                      )}
+                      title="Reported Teams"
+                    />
+                  </VStack>
+                </Stack>
               </GridItem>
             </Grid>
           </GridItem>
@@ -351,55 +549,115 @@ const Dashboard = () => {
                   h="100%"
                 >
                   <GridItem rowSpan={2} h="100%" bg={bg}>
-                    <Flex
-                      direction="column"
-                      h="100%"
-                      alignItems="center"
-                      justifyContent="space-around"
-                      justifyItems="center"
-                    >
+                    <Stack h="100%" spacing={0}>
                       <Flex
-                        w="100%"
-                        // bg="yellow"
-                        justifyContent="space-around"
                         alignItems="center"
+                        bg="gray.200"
+                        h="30px"
+                        alignContent="center"
                         justifyItems="center"
                       >
-                        <SingleValue
-                          indicator={mainDashboard.issued(store.selectedUnits)}
-                          title="Issued"
-                        />
-                        <SingleValue
-                          indicator={mainDashboard.used(store.selectedUnits)}
-                          title="Used"
-                        />
+                        <Text
+                          pl="25px"
+                          h="20px"
+                          textTransform="uppercase"
+                          fontWeight="bold"
+                          fontSize="0.8vw"
+                          color="gray.500"
+                          isTruncated
+                        >
+                          Stock Status
+                        </Text>
                       </Flex>
-                      <Flex
+                      <VStack
+                        flex={1}
+                        h="100%"
                         w="100%"
+                        alignItems="space-around"
+                        justifyItems="space-around"
                         justifyContent="space-around"
-                        alignItems="center"
-                        justifyItems="center"
+                        alignContent="space-around"
                       >
-                        <SingleValue
-                          indicator={mainDashboard.discarded(
-                            store.selectedUnits
-                          )}
-                          title="Unusable"
-                        />
-                        <SingleValue
-                          indicator={mainDashboard.balance(store.selectedUnits)}
-                          title="Usable"
-                        />
-                      </Flex>
-                    </Flex>
+                        <HStack
+                          w="100%"
+                          // bg="yellow"
+                          justifyContent="space-around"
+                          alignItems="center"
+                          justifyItems="center"
+                        >
+                          <SingleValue
+                            processor={calculateStockIndicators}
+                            indicator={mainDashboard.issued(
+                              store.selectedUnits,
+                              days
+                            )}
+                            title="Received"
+                          />
+                          <SingleValue
+                            processor={calculateStockIndicators}
+                            indicator={mainDashboard.returned(
+                              store.selectedUnits,
+                              days
+                            )}
+                            title="Returned"
+                          />
+                        </HStack>
+                        <HStack
+                          w="100%"
+                          justifyContent="space-around"
+                          alignItems="center"
+                          justifyItems="center"
+                        >
+                          <SingleValue
+                            processor={calculateStockIndicators}
+                            indicator={mainDashboard.available(
+                              store.selectedUnits,
+                              days
+                            )}
+                            tooltip="Physical Balance"
+                            title="Available"
+                          />
+                          <SingleValue
+                            processor={calculateStockIndicators}
+                            indicator={mainDashboard.discarded(
+                              store.selectedUnits,
+                              days
+                            )}
+                            title="Unusable"
+                          />
+                        </HStack>
+                      </VStack>
+                    </Stack>
                   </GridItem>
                   <GridItem rowSpan={2} bg={bg}>
-                    <HorizontalBar
-                      processor={processWastageData}
-                      indicator={mainDashboard.wastageSummary(
-                        store.selectedUnits
-                      )}
-                    />
+                    <Stack w="100%" h="100%" spacing={0}>
+                      <Flex
+                        alignItems="center"
+                        bg="gray.200"
+                        h="30px"
+                        alignContent="center"
+                        justifyItems="center"
+                      >
+                        <Text
+                          pl="25px"
+                          h="20px"
+                          textTransform="uppercase"
+                          fontWeight="bold"
+                          fontSize="0.8vw"
+                          color="gray.500"
+                          isTruncated
+                        >
+                          Unusable Vials
+                        </Text>
+                      </Flex>
+                      <PieChart
+                        processor={processWastageData}
+                        indicator={mainDashboard.wastageSummary(
+                          store.selectedUnits,
+                          days
+                        )}
+                      />
+                    </Stack>
                   </GridItem>
                 </Grid>
               </GridItem>

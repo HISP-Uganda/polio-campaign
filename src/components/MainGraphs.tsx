@@ -5,11 +5,12 @@ import useInterval from "react-useinterval";
 
 import { processBarData, processSublevelData } from "../stores/DataProcessors";
 import { mainDashboard } from "../stores/Indicators";
-import { $store } from "../stores/Store";
+import { $days, $store } from "../stores/Store";
 import { BarGraph } from "./BarGraph";
 import TableVisualization from "./TableVisualization";
 const MainGraphs: FC<{ yColor: string; bg: string }> = ({ yColor, bg }) => {
   const store = useStore($store);
+  const days = useStore($days);
   const [tabIndex, setTabIndex] = useState<number>(0);
 
   const increment = () => setTabIndex((s: number) => (s + 1) % 5);
@@ -17,6 +18,7 @@ const MainGraphs: FC<{ yColor: string; bg: string }> = ({ yColor, bg }) => {
 
   return (
     <Tabs
+      flex={1}
       index={tabIndex}
       onChange={(index) => setTabIndex(index)}
       h={["auto", "auto", "100%"]}
@@ -25,19 +27,19 @@ const MainGraphs: FC<{ yColor: string; bg: string }> = ({ yColor, bg }) => {
       flexDirection="column"
     >
       <TabList flexDirection={["column", "column", "row"]}>
-        <Tab fontSize="xl">Performance(Daily)</Tab>
-        <Tab fontSize="xl">Performance(Sub-level)</Tab>
-        <Tab fontSize="xl">Wastage(Daily)</Tab>
-        <Tab fontSize="xl">Wastage(Sub-level)</Tab>
-        <Tab fontSize="xl">Performance Table</Tab>
+        <Tab fontSize="lg">Performance(Daily)</Tab>
+        <Tab fontSize="lg">Performance(Sub-level)</Tab>
+        <Tab fontSize="lg">Wastage(Daily)</Tab>
+        <Tab fontSize="lg">Wastage(Sub-level)</Tab>
+        <Tab fontSize="lg">Table</Tab>
       </TabList>
-      <TabPanels h="100%" flex={1}>
-        <TabPanel p={0} m={0} h="100%">
+      <TabPanels h="100%" w="100%" flex={1}>
+        <TabPanel p={0} m={0} h="100%" w="100%">
           <BarGraph
             title="Daily performance"
             bg={bg}
             yColor={yColor}
-            indicator={mainDashboard.performance(store.selectedUnits)}
+            indicator={mainDashboard.performance(store.selectedUnits, days)}
             processor={processBarData}
             others={[
               { id: "rkPK3fYEJzh", name: "Target" },
@@ -45,14 +47,15 @@ const MainGraphs: FC<{ yColor: string; bg: string }> = ({ yColor, bg }) => {
             ]}
           />
         </TabPanel>
-        <TabPanel h="100%" p={0} m={0}>
+        <TabPanel h="100%" w="100%" p={0} m={0}>
           <BarGraph
             title="Sublevel Daily performance"
             bg={bg}
             yColor={yColor}
             indicator={mainDashboard.subLevelPerformance(
               store.selectedUnits,
-              store.sublevel
+              store.sublevel,
+              days
             )}
             processor={processSublevelData}
             others={[
@@ -61,12 +64,12 @@ const MainGraphs: FC<{ yColor: string; bg: string }> = ({ yColor, bg }) => {
             ]}
           />
         </TabPanel>
-        <TabPanel h="100%" p={0} m={0}>
+        <TabPanel h="100%" w="100%" p={0} m={0}>
           <BarGraph
             title="Daily Unusable vials"
             bg={bg}
             yColor={yColor}
-            indicator={mainDashboard.wastage(store.selectedUnits)}
+            indicator={mainDashboard.wastage(store.selectedUnits, days)}
             processor={processBarData}
             others={[
               { id: "XRisIwF1Lk3", name: "Empty Vials" },
@@ -77,14 +80,15 @@ const MainGraphs: FC<{ yColor: string; bg: string }> = ({ yColor, bg }) => {
             ]}
           />
         </TabPanel>
-        <TabPanel h="100%" p={0} m={0}>
+        <TabPanel h="100%" w="100%" p={0} m={0}>
           <BarGraph
             title="Sublevel Unusable vials"
             bg={bg}
             yColor={yColor}
             indicator={mainDashboard.sublevelWastage(
               store.selectedUnits,
-              store.sublevel
+              store.sublevel,
+              days
             )}
             processor={processSublevelData}
             others={[
@@ -95,9 +99,9 @@ const MainGraphs: FC<{ yColor: string; bg: string }> = ({ yColor, bg }) => {
             ]}
           />
         </TabPanel>
-        <TabPanel h="100%" p={0} m={0}>
+        <TabPanel h="100%" w="100%" p={0} m={0}>
           <TableVisualization
-            indicator={mainDashboard.table(store.selectedUnits)}
+            indicator={mainDashboard.table(store.selectedUnits, days)}
           />
         </TabPanel>
       </TabPanels>

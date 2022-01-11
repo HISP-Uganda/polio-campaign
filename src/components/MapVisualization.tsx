@@ -15,14 +15,7 @@ const MapVisualization: FC<{ indicator: Indicator; title: string }> = ({
     store.selectedUnits
   );
   return (
-    <Flex
-      direction="column"
-      h="100%"
-      justifyContent="center"
-      alignItems="center"
-      justifyItems="center"
-      alignContent="center"
-    >
+    <>
       {isLoading && <Spinner />}
       {isSuccess && (
         <Map
@@ -33,7 +26,7 @@ const MapVisualization: FC<{ indicator: Indicator; title: string }> = ({
         />
       )}
       {isError && <Box>{error.message}</Box>}
-    </Flex>
+    </>
   );
 };
 

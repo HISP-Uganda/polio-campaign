@@ -3,6 +3,7 @@ import { domain } from "./Domain";
 import {
   changeCurrentUser,
   setCurrentLevel,
+  setDays,
   setGeojson,
   setLocations,
   setSelectedUnits,
@@ -20,6 +21,20 @@ export const $store = domain
     currentLevel: 3,
     sublevel: 3,
     zoom: 6.0,
+    days: [
+      {
+        label: "Day 1",
+        value: "10144",
+      },
+      {
+        label: "Day 2",
+        value: "10145",
+      },
+      {
+        label: "Day 3",
+        value: "10146",
+      },
+    ],
   })
   .on(changeCurrentUser, (state, user) => {
     return { ...state, currentUser: user };
@@ -44,4 +59,15 @@ export const $store = domain
   })
   .on(setSublevel, (state, sublevel) => {
     return { ...state, sublevel };
+  })
+  .on(setDays, (state, days) => {
+    return { ...state, days };
   });
+
+export const $days = $store.map((state) => {
+  return state.days.map((d) => d.value).join("-");
+});
+
+export const $realDays = $store.map((state) => {
+  return state.days.length;
+});

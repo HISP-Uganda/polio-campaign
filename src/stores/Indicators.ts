@@ -3,7 +3,7 @@ import { Indicator } from "../interfaces";
 type func = (...args: any[]) => Indicator;
 
 export const mainDashboard: { [key: string]: func } = {
-  performance: (parent) => {
+  performance: (parent, aoc) => {
     return {
       numerator: {
         sqlView: "eXLGUbjauwc",
@@ -11,6 +11,7 @@ export const mainDashboard: { [key: string]: func } = {
           dx: "rkPK3fYEJzh",
           dx1: "Tk6RjMskA93",
           parent,
+          aoc,
         },
       },
       denominator: {
@@ -19,7 +20,7 @@ export const mainDashboard: { [key: string]: func } = {
       },
     };
   },
-  subLevelPerformance: (parent, part) => {
+  subLevelPerformance: (parent, part, aoc) => {
     return {
       numerator: {
         sqlView: "yDJUeci0pSi",
@@ -28,6 +29,7 @@ export const mainDashboard: { [key: string]: func } = {
           dx1: "rkPK3fYEJzh",
           parent,
           part,
+          aoc,
         },
       },
       denominator: {
@@ -36,13 +38,14 @@ export const mainDashboard: { [key: string]: func } = {
       },
     };
   },
-  wastage: (parent) => {
+  wastage: (parent, aoc) => {
     return {
       numerator: {
         sqlView: "nWziq9Yr0mA",
         parameters: {
           dx: "K3QB60hWuQI",
           parent,
+          aoc,
         },
       },
       denominator: {
@@ -51,7 +54,7 @@ export const mainDashboard: { [key: string]: func } = {
       },
     };
   },
-  sublevelWastage: (parent, part) => {
+  sublevelWastage: (parent, part, aoc) => {
     return {
       numerator: {
         sqlView: "Zd4pmzH9wr3",
@@ -59,6 +62,7 @@ export const mainDashboard: { [key: string]: func } = {
           dx: "K3QB60hWuQI",
           parent,
           part,
+          aoc,
         },
       },
       denominator: {
@@ -67,13 +71,14 @@ export const mainDashboard: { [key: string]: func } = {
       },
     };
   },
-  posts: (parent) => {
+  posts: (parent, aoc) => {
     return {
       numerator: {
         sqlView: "Ao09K7cUj5m",
         parameters: {
           level: "4",
           parent,
+          aoc,
         },
       },
       denominator: {
@@ -82,11 +87,11 @@ export const mainDashboard: { [key: string]: func } = {
       },
     };
   },
-  reported: (parent) => {
+  reported: (parent, aoc) => {
     return {
       numerator: {
         sqlView: "yrs3dM9IbGx",
-        parameters: { parent },
+        parameters: { parent, aoc },
       },
       denominator: {
         sqlView: "ezh2YYPPeLN",
@@ -94,11 +99,11 @@ export const mainDashboard: { [key: string]: func } = {
       },
     };
   },
-  afpCases: (parent) => {
+  afpCases: (parent, aoc) => {
     return {
       numerator: {
         sqlView: "XMsx2OmhqBa",
-        parameters: { parent, dx: "jPQfkKWugQB" },
+        parameters: { parent, dx: "jPQfkKWugQB", aoc },
       },
       denominator: {
         sqlView: "ezh2YYPPeLN",
@@ -106,11 +111,11 @@ export const mainDashboard: { [key: string]: func } = {
       },
     };
   },
-  aefiCases: (parent) => {
+  aefiCases: (parent, aoc) => {
     return {
       numerator: {
         sqlView: "XMsx2OmhqBa",
-        parameters: { parent, dx: "Wib85iEPHIF" },
+        parameters: { parent, dx: "Wib85iEPHIF", aoc },
       },
       denominator: {
         sqlView: "ezh2YYPPeLN",
@@ -118,11 +123,11 @@ export const mainDashboard: { [key: string]: func } = {
       },
     };
   },
-  totalWorkers: (parent) => {
+  totalWorkers: (parent, aoc) => {
     return {
       numerator: {
         sqlView: "XMsx2OmhqBa",
-        parameters: { parent, dx: "gfIhVhuWVHr" },
+        parameters: { parent, dx: "gfIhVhuWVHr", aoc },
       },
       denominator: {
         sqlView: "ezh2YYPPeLN",
@@ -133,7 +138,7 @@ export const mainDashboard: { [key: string]: func } = {
   target: (parent) => {
     return {
       numerator: {
-        sqlView: "XMsx2OmhqBa",
+        sqlView: "PSJh5UBG3Nd",
         parameters: { parent, dx: "NPtjF45ruWX" },
       },
       denominator: {
@@ -142,11 +147,11 @@ export const mainDashboard: { [key: string]: func } = {
       },
     };
   },
-  vaccinated: (parent) => {
+  vaccinated: (parent, aoc) => {
     return {
       numerator: {
         sqlView: "XMsx2OmhqBa",
-        parameters: { parent, dx: "Tk6RjMskA93" },
+        parameters: { parent, dx: "Tk6RjMskA93", aoc },
       },
       denominator: {
         sqlView: "ezh2YYPPeLN",
@@ -154,11 +159,11 @@ export const mainDashboard: { [key: string]: func } = {
       },
     };
   },
-  zeroDose: (parent) => {
+  zeroDose: (parent, aoc) => {
     return {
       numerator: {
         sqlView: "XMsx2OmhqBa",
-        parameters: { parent, dx: "gpdvfDm3eVp" },
+        parameters: { parent, dx: "gpdvfDm3eVp", aoc },
       },
       denominator: {
         sqlView: "ezh2YYPPeLN",
@@ -166,23 +171,23 @@ export const mainDashboard: { [key: string]: func } = {
       },
     };
   },
-  coverage: (parent) => {
+  coverage: (parent, aoc) => {
     return {
       numerator: {
         sqlView: "XMsx2OmhqBa",
-        parameters: { parent, dx: "Tk6RjMskA93" },
+        parameters: { parent, dx: "Tk6RjMskA93", aoc },
       },
       denominator: {
-        sqlView: "XMsx2OmhqBa",
+        sqlView: "PSJh5UBG3Nd",
         parameters: { parent, dx: "NPtjF45ruWX" },
       },
     };
   },
-  issued: (parent) => {
+  issued: (parent, aoc) => {
     return {
       numerator: {
         sqlView: "XMsx2OmhqBa",
-        parameters: { parent, dx: "Sfw4l2p8IpA" },
+        parameters: { parent, dx: "Sfw4l2p8IpA", aoc },
       },
       denominator: {
         sqlView: "ezh2YYPPeLN",
@@ -190,11 +195,11 @@ export const mainDashboard: { [key: string]: func } = {
       },
     };
   },
-  balance: (parent) => {
+  returned: (parent, aoc) => {
     return {
       numerator: {
         sqlView: "XMsx2OmhqBa",
-        parameters: { parent, dx: "ZZ71Sw0pjMf" },
+        parameters: { parent, dx: "UqHuKPGmatX", aoc },
       },
       denominator: {
         sqlView: "ezh2YYPPeLN",
@@ -202,11 +207,11 @@ export const mainDashboard: { [key: string]: func } = {
       },
     };
   },
-  discarded: (parent) => {
+  available: (parent, aoc) => {
     return {
       numerator: {
         sqlView: "XMsx2OmhqBa",
-        parameters: { parent, dx: "K3QB60hWuQI" },
+        parameters: { parent, dx: "ZZ71Sw0pjMf", aoc },
       },
       denominator: {
         sqlView: "ezh2YYPPeLN",
@@ -214,11 +219,11 @@ export const mainDashboard: { [key: string]: func } = {
       },
     };
   },
-  used: (parent) => {
+  discarded: (parent, aoc) => {
     return {
       numerator: {
-        sqlView: "BTv5W2gZAA8",
-        parameters: { parent, dx1: "Sfw4l2p8IpA", dx2: "UqHuKPGmatX" },
+        sqlView: "XMsx2OmhqBa",
+        parameters: { parent, dx: "K3QB60hWuQI", aoc },
       },
       denominator: {
         sqlView: "ezh2YYPPeLN",
@@ -226,21 +231,37 @@ export const mainDashboard: { [key: string]: func } = {
       },
     };
   },
-  rates: (parent) => {
+  used: (parent, aoc) => {
     return {
       numerator: {
-        sqlView: "nhTTbZ0iijU",
+        sqlView: "XMsx2OmhqBa",
+        parameters: { parent, dx: "Sfw4l2p8IpA", aoc },
+      },
+      denominator: {
+        sqlView: "XMsx2OmhqBa",
+        parameters: { parent, dx: "UqHuKPGmatX", aoc },
+      },
+    };
+  },
+  rates: (parent, aoc) => {
+    return {
+      numerator: {
+        sqlView: "yrs3dM9IbGx",
         parameters: {
           parent,
+          aoc,
         },
       },
       denominator: {
-        sqlView: "ezh2YYPPeLN",
-        parameters: {},
+        sqlView: "Ao09K7cUj5m",
+        parameters: {
+          level: "4",
+          parent,
+        },
       },
     };
   },
-  districts: (parent, part) => {
+  districts: (parent, part, aoc) => {
     return {
       numerator: {
         sqlView: "zHnhTlh7Hbd",
@@ -248,6 +269,7 @@ export const mainDashboard: { [key: string]: func } = {
           dx: "Tk6RjMskA93",
           part,
           parent,
+          aoc,
         },
       },
       denominator: {
@@ -256,7 +278,7 @@ export const mainDashboard: { [key: string]: func } = {
       },
     };
   },
-  districtsWastage: (parent, part) => {
+  districtsWastage: (parent, part, aoc) => {
     return {
       numerator: {
         sqlView: "zHnhTlh7Hbd",
@@ -264,6 +286,7 @@ export const mainDashboard: { [key: string]: func } = {
           dx: "K3QB60hWuQI",
           part,
           parent,
+          aoc,
         },
       },
       denominator: {
@@ -272,13 +295,14 @@ export const mainDashboard: { [key: string]: func } = {
       },
     };
   },
-  wastageSummary: (parent) => {
+  wastageSummary: (parent, aoc) => {
     return {
       numerator: {
         sqlView: "PiiwBdbBm7Z",
         parameters: {
           dx: "K3QB60hWuQI",
           parent,
+          aoc,
         },
       },
       denominator: {
@@ -287,13 +311,75 @@ export const mainDashboard: { [key: string]: func } = {
       },
     };
   },
-  table: (parent) => {
+  realWastage: (parent, aoc) => {
+    return {
+      numerator: {
+        sqlView: "XMsx2OmhqBa",
+        parameters: { parent, dx: "K3QB60hWuQI", aoc },
+      },
+      denominator: {
+        sqlView: "XMsx2OmhqBa",
+        parameters: { parent, dx: "Tk6RjMskA93", aoc },
+      },
+    };
+  },
+  table: (parent, aoc) => {
     return {
       numerator: {
         sqlView: "K7bTNXbz37B",
         parameters: {
           parent,
+          aoc,
         },
+      },
+      denominator: {
+        sqlView: "ezh2YYPPeLN",
+        parameters: {},
+      },
+    };
+  },
+
+  staffTarget: (parent, aoc) => {
+    return {
+      numerator: {
+        sqlView: "PSJh5UBG3Nd",
+        parameters: { parent, dx: "itEQ0muVdaW" },
+      },
+      denominator: {
+        sqlView: "ezh2YYPPeLN",
+        parameters: {},
+      },
+    };
+  },
+  staffReported: (parent, aoc) => {
+    return {
+      numerator: {
+        sqlView: "XMsx2OmhqBa",
+        parameters: { parent, dx: "gfIhVhuWVHr", aoc },
+      },
+      denominator: {
+        sqlView: "ezh2YYPPeLN",
+        parameters: {},
+      },
+    };
+  },
+  staffTeamTarget: (parent) => {
+    return {
+      numerator: {
+        sqlView: "PSJh5UBG3Nd",
+        parameters: { parent, dx: "itEQ0muVdaW" },
+      },
+      denominator: {
+        sqlView: "ezh2YYPPeLN",
+        parameters: {},
+      },
+    };
+  },
+  staffTeamReported: (parent, aoc) => {
+    return {
+      numerator: {
+        sqlView: "XMsx2OmhqBa",
+        parameters: { parent, dx: "gfIhVhuWVHr", aoc },
       },
       denominator: {
         sqlView: "ezh2YYPPeLN",

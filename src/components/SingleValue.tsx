@@ -1,21 +1,23 @@
-import {
-  CircularProgress,
-  CircularProgressLabel,
-  Spinner,
-  Text,
-  Stack,
-} from "@chakra-ui/react";
+import { Spinner, Stack, Text, Tooltip } from "@chakra-ui/react";
 import { FC } from "react";
 import { Indicator } from "../interfaces";
 import { useSqlView } from "../stores/Queries";
+
+let formatter = Intl.NumberFormat("en", {
+  notation: "compact",
+  // maximumSignificantDigits: 3,
+  maximumFractionDigits: 2,
+  // minimumSignificantDigits: 3,
+  // minimumIntegerDigits:2
+});
 
 const ST: FC<{
   data: any;
   title: string;
   postfix?: string;
-  hasProgress?: boolean;
   direction?: "column" | "row";
-}> = ({ title, data, postfix, hasProgress, direction = "column" }) => {
+  tooltip: string;
+}> = ({ title, data, postfix, direction = "column", tooltip = "" }) => {
   return (
     <Stack
       spacing={direction === "column" ? 0 : "10px"}
@@ -25,48 +27,21 @@ const ST: FC<{
       justifyItems="center"
       direction={direction}
     >
-      <Text
-        textTransform="uppercase"
-        fontWeight="medium"
-        fontSize="1.2vw"
-        isTruncated
-      >
-        {title}
-      </Text>
+      <Tooltip label={tooltip} hasArrow placement="top">
+        <Text
+          textTransform="uppercase"
+          fontWeight="medium"
+          fontSize="1.2vw"
+          isTruncated
+        >
+          {title}
+        </Text>
+      </Tooltip>
+
       <Text fontSize={"2.0vw"} color="red" fontWeight="bold">
-        {Number(data).toLocaleString(undefined, {
-          maximumFractionDigits: 2,
-        })}
+        {formatter.format(Number(data))}
         {postfix}
       </Text>
-    </Stack>
-  );
-};
-
-const PR: FC<{ data: any; title: string; postfix?: string }> = ({
-  title,
-  data,
-  postfix,
-}) => {
-  return (
-    <Stack
-      spacing={0}
-      h="100%"
-      justifyContent="center"
-      alignItems="center"
-      justifyItems="center"
-    >
-      <Text textTransform="uppercase" fontWeight="medium" fontSize="1.2vw">
-        {title}
-      </Text>
-      <CircularProgress value={Number(data)} size="80px">
-        <CircularProgressLabel fontSize="1.0vw" fontWeight="bold">
-          {Number(data).toLocaleString(undefined, {
-            maximumFractionDigits: 2,
-          })}
-          {postfix}
-        </CircularProgressLabel>
-      </CircularProgress>
     </Stack>
   );
 };
@@ -77,12 +52,18 @@ const SingleValue: FC<{
   postfix?: string;
   hasProgress?: boolean;
   direction?: "column" | "row";
+  processor: (...data: any[]) => any;
+  tooltip?: string;
+  otherArgs?: any[];
 }> = ({
   indicator,
   title,
   postfix = "",
   hasProgress = false,
   direction = "column",
+  tooltip = "",
+  processor,
+  otherArgs = [],
 }) => {
   const { isLoading, isError, isSuccess, error, data } = useSqlView(indicator);
   return (
@@ -90,20 +71,14 @@ const SingleValue: FC<{
       {isLoading && <Spinner />}
       {isSuccess && (
         <ST
+          tooltip={tooltip}
           direction={direction}
           title={title}
-          data={
-            Number(data.numerators) !== NaN && Number(data.denominators) !== NaN
-              ? Number(data.denominators) === 0
-                ? 0
-                : data.numerators / data.denominators
-              : 0
-          }
+          data={processor(data, ...otherArgs)}
           postfix={postfix}
-          hasProgress={hasProgress}
         />
       )}
-      {isError && <pre>{JSON.stringify(error)}</pre>}
+      {isError && <pre>{error.message}</pre>}
     </Stack>
   );
 };

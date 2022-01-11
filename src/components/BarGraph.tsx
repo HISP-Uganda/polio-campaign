@@ -1,4 +1,11 @@
-import { Box, Flex, Spinner, Text, useColorModeValue } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Spinner,
+  Stack,
+  Text,
+  useColorModeValue,
+} from "@chakra-ui/react";
 import { FC } from "react";
 import Plot from "react-plotly.js";
 import { Indicator } from "../interfaces";
@@ -14,62 +21,52 @@ export const BarGraph: FC<{
 }> = ({ indicator, processor, others, bg, yColor, title }) => {
   const { isLoading, isError, isSuccess, error, data } = useSqlView(indicator);
   return (
-    <Flex
+    <Stack
       h="100%"
       w="100%"
-      direction="column"
-      justifyContent="center"
-      alignItems="center"
-      justifyItems="center"
-      alignContent="center"
     >
       {isLoading && <Spinner />}
       {isSuccess && (
-        <>
-          <Text textAlign="center" fontSize="md">
-            {title}
-          </Text>
-          <Plot
-            data={processor(data, others)}
-            layout={{
-              barmode: "group",
-              plot_bgcolor: bg,
-              paper_bgcolor: bg,
-              autosize: true,
-              legend: {
-                orientation: "h",
-                yanchor: "bottom",
-                y: -0.15,
-                xanchor: "right",
-                x: 0.6,
-                font: {
-                  color: yColor,
-                },
-              },
-              margin: {
-                pad: 5,
-                r: 5,
-                t: 0,
-                l: 30,
-                b: 20,
-              },
-              yaxis: {
-                showgrid: true,
-                color: yColor,
-                zeroline: true,
-                gridcolor: "lightgray",
-                zerolinecolor: "lightgray",
-              },
-              xaxis: {
+        <Plot
+          data={processor(data, others)}
+          layout={{
+            barmode: "group",
+            plot_bgcolor: bg,
+            paper_bgcolor: bg,
+            autosize: true,
+            legend: {
+              orientation: "h",
+              yanchor: "bottom",
+              y: -0.15,
+              xanchor: "right",
+              x: 0.6,
+              font: {
                 color: yColor,
               },
-            }}
-            style={{ width: "100%", height: "100%" }}
-            config={{ displayModeBar: false, responsive: true }}
-          />
-        </>
+            },
+            margin: {
+              pad: 5,
+              r: 5,
+              t: 0,
+              l: 40,
+              b: 20,
+            },
+            yaxis: {
+              showgrid: true,
+              color: yColor,
+              zeroline: true,
+              gridcolor: "lightgray",
+              zerolinecolor: "lightgray",
+            },
+            xaxis: {
+              color: yColor,
+            },
+          }}
+          style={{ width: "100%", height: "100%" }}
+          config={{ displayModeBar: false, responsive: true }}
+        />
       )}
       {isError && <Box>{error.message}</Box>}
-    </Flex>
+    </Stack>
   );
 };

@@ -115,7 +115,7 @@ export function useSqlView(indicator: Indicator) {
       };
     },
     {
-      refetchInterval: 1000 * 5,
+      // refetchInterval: 1000 * 5,
     }
   );
 }

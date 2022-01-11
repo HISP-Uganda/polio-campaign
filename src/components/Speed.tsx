@@ -22,7 +22,7 @@ const Speed: FC<{
             Number(data.denominators) !== NaN
               ? Number(data.denominators) === 0
                 ? 0
-                : data.numerators / data.denominators
+                : (data.numerators / data.denominators) * 100
               : 0}
             %)
           </Text>
@@ -35,7 +35,7 @@ const Speed: FC<{
                   Number(data.denominators) !== NaN
                     ? Number(data.denominators) === 0
                       ? 0
-                      : data.numerators / data.denominators
+                      : (data.numerators / data.denominators) * 100
                     : 0,
                 type: "indicator",
                 mode: "gauge",
@@ -62,7 +62,7 @@ const Speed: FC<{
               paper_bgcolor: bg,
               autosize: true,
               height: 60,
-              margin: { t: 5, b: 21, l: 15, r: 15 },
+              margin: { t: 5, b: 21, l: 15, r: 0 },
             }}
             style={{ width: "100%", height: "100%" }}
             config={{ displayModeBar: false, responsive: true }}

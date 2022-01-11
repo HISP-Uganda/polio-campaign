@@ -8,6 +8,7 @@ export interface Store {
   currentLevel: number;
   zoom: number;
   sublevel: number;
+  days: any[];
 }
 
 export interface DataValue {
