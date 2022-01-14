@@ -2,14 +2,7 @@ import { Spinner, Stack, Text, Tooltip } from "@chakra-ui/react";
 import { FC } from "react";
 import { Indicator } from "../interfaces";
 import { useSqlView } from "../stores/Queries";
-
-let formatter = Intl.NumberFormat("en", {
-  notation: "compact",
-  // maximumSignificantDigits: 3,
-  maximumFractionDigits: 2,
-  // minimumSignificantDigits: 3,
-  // minimumIntegerDigits:2
-});
+import { formatter } from "../utils";
 
 const ST: FC<{
   data: any;
@@ -27,7 +20,7 @@ const ST: FC<{
       justifyItems="center"
       direction={direction}
     >
-      <Tooltip label={tooltip} hasArrow placement="top">
+      <Tooltip label={`${tooltip} ${Number(data)}`} hasArrow placement="top">
         <Text
           textTransform="uppercase"
           fontWeight="medium"

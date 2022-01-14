@@ -10,3 +10,4 @@ export const setCurrentLevel = domain.createEvent<number>();
 export const setZoom = domain.createEvent<number>();
 export const setSublevel = domain.createEvent<number>();
 export const setDays = domain.createEvent<any[]>();
+export const setSublevels = domain.createEvent<any[]>();

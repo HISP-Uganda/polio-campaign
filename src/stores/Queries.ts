@@ -2,7 +2,7 @@ import { useDataEngine } from "@dhis2/app-runtime";
 import { useQuery } from "react-query";
 import { fromPairs, isEmpty } from "lodash";
 import { Indicator } from "../interfaces";
-import { setSelectedUnits, setUserUnits } from "./Events";
+import { setSelectedUnits, setSublevels, setUserUnits } from "./Events";
 import { center } from "@turf/turf";
 
 export function useLoader() {
@@ -14,10 +14,19 @@ export function useLoader() {
         fields: "organisationUnits[id,level,name,leaf]",
       },
     },
+    regions: {
+      resource: "organisationUnits.json",
+      params: {
+        fields: "id,name",
+        level: 2,
+        order: "shortName:desc",
+      },
+    },
   };
   return useQuery<any, Error>("initial", async () => {
     const {
       me: { organisationUnits },
+      regions: { organisationUnits: units },
     }: any = await engine.query(query);
     const processedUnits = organisationUnits.map((unit: any) => {
       return {
@@ -31,6 +40,7 @@ export function useLoader() {
     });
     setUserUnits(processedUnits);
     setSelectedUnits(processedUnits[0].id);
+    setSublevels(units);
     return true;
   });
 }
@@ -82,7 +92,7 @@ export function useSqlView(indicator: Indicator) {
     [
       "query",
       indicator.numerator.sqlView,
-      indicator.denominator?.sqlView,
+      indicator.denominator.sqlView,
       ...numeratorKeys,
       ...denominatorKeys,
     ],
@@ -115,7 +125,7 @@ export function useSqlView(indicator: Indicator) {
       };
     },
     {
-      // refetchInterval: 1000 * 5,
+      refetchInterval: 1000 * 5,
     }
   );
 }

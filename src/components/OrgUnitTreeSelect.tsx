@@ -8,6 +8,7 @@ import {
   setCurrentLevel,
   setSelectedUnits,
   setSublevel,
+  setSublevels,
   setZoom,
 } from "../stores/Events";
 import { $store } from "../stores/Store";
@@ -62,7 +63,7 @@ const OrgUnitTreeSelect = () => {
     }
   };
 
-  const onOrgUnitChange = (value: string) => {
+  const onOrgUnitChange = async (value: string) => {
     const unitObj = {
       1: 3,
       2: 3,
@@ -80,6 +81,22 @@ const OrgUnitTreeSelect = () => {
     setSelectedUnits(value);
     setSublevel(unit.level + 2);
     setZoom(zooms[unit.level] || 6.0);
+
+    const {
+      response: { organisationUnits },
+    }: any = await engine.query(query(unit));
+    const found = organisationUnits.map((unit: any) => {
+      return unit.children.sort((a: any, b: any) => {
+        if (a.name > b.name) {
+          return 1;
+        }
+        if (a.name < b.name) {
+          return -1;
+        }
+        return 0;
+      });
+    });
+    setSublevels(flatten(found));
   };
 
   return (
@@ -93,8 +110,6 @@ const OrgUnitTreeSelect = () => {
       dropdownStyle={{
         maxHeight: 400,
         overflow: "auto",
-        backgroundColor: "yellow",
-        zIndex: 100000,
       }}
       placeholder="Please select health centre"
       onChange={onOrgUnitChange}

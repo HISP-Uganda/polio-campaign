@@ -3,7 +3,12 @@ import { useStore } from "effector-react";
 import { FC, useState } from "react";
 import useInterval from "react-useinterval";
 
-import { processBarData, processSublevelData } from "../stores/DataProcessors";
+import {
+  processBarData,
+  processSublevelWastageData,
+  processSublevelPerformance,
+  processWastageBarData,
+} from "../stores/DataProcessors";
 import { mainDashboard } from "../stores/Indicators";
 import { $days, $store } from "../stores/Store";
 import { BarGraph } from "./BarGraph";
@@ -41,10 +46,7 @@ const MainGraphs: FC<{ yColor: string; bg: string }> = ({ yColor, bg }) => {
             yColor={yColor}
             indicator={mainDashboard.performance(store.selectedUnits, days)}
             processor={processBarData}
-            others={[
-              { id: "rkPK3fYEJzh", name: "Target" },
-              { id: "Tk6RjMskA93", name: "Vaccinated" },
-            ]}
+            args={[store.days]}
           />
         </TabPanel>
         <TabPanel h="100%" w="100%" p={0} m={0}>
@@ -57,11 +59,8 @@ const MainGraphs: FC<{ yColor: string; bg: string }> = ({ yColor, bg }) => {
               store.sublevel,
               days
             )}
-            processor={processSublevelData}
-            others={[
-              { id: "gfIhVhuWVHr", name: "Target" },
-              { id: "rkPK3fYEJzh", name: "Vaccinated" },
-            ]}
+            processor={processSublevelPerformance}
+            args={[store.sublevels, store.days.length]}
           />
         </TabPanel>
         <TabPanel h="100%" w="100%" p={0} m={0}>
@@ -70,13 +69,16 @@ const MainGraphs: FC<{ yColor: string; bg: string }> = ({ yColor, bg }) => {
             bg={bg}
             yColor={yColor}
             indicator={mainDashboard.wastage(store.selectedUnits, days)}
-            processor={processBarData}
-            others={[
-              { id: "XRisIwF1Lk3", name: "Empty Vials" },
-              { id: "WC7dEdnHjfn", name: "Contamination" },
-              { id: "OevThMNdV8u", name: "Partial Use" },
-              { id: "uDHd6MAn9Ck", name: "VVM Color Change" },
-              { id: "q9Dmtmon8oX", name: "Other (Specify)" },
+            processor={processWastageBarData}
+            args={[
+              store.days,
+              [
+                { id: "XRisIwF1Lk3", name: "Empty Vials" },
+                { id: "WC7dEdnHjfn", name: "Contamination" },
+                { id: "OevThMNdV8u", name: "Partial Use" },
+                { id: "uDHd6MAn9Ck", name: "VVM Color Change" },
+                { id: "q9Dmtmon8oX", name: "Other (Specify)" },
+              ],
             ]}
           />
         </TabPanel>
@@ -90,12 +92,15 @@ const MainGraphs: FC<{ yColor: string; bg: string }> = ({ yColor, bg }) => {
               store.sublevel,
               days
             )}
-            processor={processSublevelData}
-            others={[
-              { id: "WC7dEdnHjfn", name: "Contamination" },
-              { id: "OevThMNdV8u", name: "Partial use" },
-              { id: "uDHd6MAn9Ck", name: "VVM Color Change" },
-              { id: "q9Dmtmon8oX", name: "Other (Specify)" },
+            processor={processSublevelWastageData}
+            args={[
+              store.sublevels,
+              [
+                { id: "WC7dEdnHjfn", name: "Contamination" },
+                { id: "OevThMNdV8u", name: "Partial use" },
+                { id: "uDHd6MAn9Ck", name: "VVM Color Change" },
+                { id: "q9Dmtmon8oX", name: "Other (Specify)" },
+              ],
             ]}
           />
         </TabPanel>

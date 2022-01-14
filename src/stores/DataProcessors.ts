@@ -1,27 +1,54 @@
-import { uniq } from "lodash";
-import { parseISO, format } from "date-fns";
-export function processBarData(
+export function processBarData(data: any, dx: any[]): any[] {
+  const x = dx.map((d: any) => {
+    return d.label;
+  });
+
+  const vaccinated = {
+    name: "Vaccinated",
+    x,
+    y: dx.map(({ value }: any) => data.numerators[value] || 0),
+    type: "bar",
+    textposition: "auto",
+    texttemplate: "%{y}",
+    // hoverinfo: "none",
+  };
+
+  const target = {
+    name: "Target",
+    x,
+    y: dx.map(() => data.denominators / 3),
+    type: "bar",
+    textposition: "auto",
+    texttemplate: "%{y}",
+    // hoverinfo: "none",
+  };
+  return [vaccinated, target];
+}
+export function processWastageBarData(
   data: any,
-  dx: { id: string; name: string }[]
+  dx: any[],
+  others: any[]
 ): any[] {
-  const x = uniq(data.numerators.map(([p]) => p).sort());
-  const realX = x.map((i: any) => format(parseISO(i), "MMM dd"));
-  return dx.map(({ id, name }) => {
-    const y = x.map((i) => {
-      const dt = data.numerators.find(([p, d]) => d === id && i === p);
-      if (dt) {
-        return dt[2];
-      }
-      return 0;
-    });
+  const x = dx.map((d: any) => {
+    return d.label;
+  });
+  return others.map(({ id, name }) => {
     return {
-      name: name,
-      x: realX,
-      y,
+      name,
+      x,
+      y: dx.map(({ value }: any) => {
+        const filtered = data.numerators.find(([p, d, v]) => {
+          return d === id && String(value) === String(p);
+        });
+        if (filtered) {
+          return filtered[2];
+        }
+        return 0;
+      }),
       type: "bar",
       textposition: "auto",
       texttemplate: "%{y}",
-      hoverinfo: "none",
+      // hoverinfo: "none",
     };
   });
 }
@@ -34,7 +61,17 @@ export const processSingleValue = (data: any) => {
   ) {
     return Number(data.numerators) / Number(data.denominators);
   }
-  return 0
+  return 0;
+};
+export const processCoverageValue = (data: any) => {
+  if (
+    Number(data.numerators) !== NaN &&
+    Number(data.denominators) !== NaN &&
+    Number(data.denominators) !== 0
+  ) {
+    return (Number(data.numerators) * 100) / Number(data.denominators);
+  }
+  return 0;
 };
 
 export const calculateStockIndicators = (data: any) => {
@@ -48,7 +85,6 @@ export const calculateStockIndicators = (data: any) => {
 };
 
 export const computeWastage = (data: any) => {
-  console.log(data)
   if (
     Number(data.numerators) !== NaN &&
     Number(data.denominators) !== NaN &&
@@ -56,7 +92,7 @@ export const computeWastage = (data: any) => {
   ) {
     return (Number(data.numerators) * 50 * 100) / Number(data.denominators);
   }
-  return 0
+  return 0;
 };
 
 export const computeTeamsTarget = (data: any, days: number) => {
@@ -69,6 +105,7 @@ export const computeTeamsTarget = (data: any, days: number) => {
       (Number(data.numerators) * days) / (Number(data.denominators) * 3 * 3)
     );
   }
+  return 0;
 };
 
 export const computeTeamsReported = (data: any) => {
@@ -79,6 +116,7 @@ export const computeTeamsReported = (data: any) => {
   ) {
     return Number(data.numerators) / (Number(data.denominators) * 3);
   }
+  return 0;
 };
 
 export const computeStaffTarget = (data: any, days: number) => {
@@ -89,10 +127,10 @@ export const computeStaffTarget = (data: any, days: number) => {
   ) {
     return (Number(data.numerators) * days) / (Number(data.denominators) * 3);
   }
+  return 0;
 };
 
 export const calculateReportingRates = (data: any) => {
-  console.log(data);
   if (
     Number(data.numerators) !== NaN &&
     Number(data.denominators) !== NaN &&
@@ -100,16 +138,50 @@ export const calculateReportingRates = (data: any) => {
   ) {
     return (Number(data.numerators) / Number(data.denominators)) * 100;
   }
+  return 0;
 };
 
-export function processSublevelData(
+export function processSublevelPerformance(
   data: any,
-  dx: { id: string; name: string }[]
+  sublevels: { id: string; name: string }[],
+  days: number
 ): any[] {
-  const x = uniq(data.numerators.map(([p]) => p).sort());
-  return dx.map(({ id, name }) => {
-    const y = x.map((i) => {
-      const dt = data.numerators.find(([p, d]) => d === id && i === p);
+  const x = sublevels.map(({ name }) => name);
+
+  const target = {
+    name: "Target",
+    x,
+    y: sublevels.map(({ id }) =>
+      data.denominators[id] !== undefined
+        ? (data.denominators[id] * days) / 3
+        : 0
+    ),
+    type: "bar",
+    textposition: "auto",
+    texttemplate: "%{y}",
+    // hoverinfo: "none",
+  };
+  const performance = {
+    name: "Vaccinated",
+    x,
+    y: sublevels.map(({ id }) => data.numerators[id] || 0),
+    type: "bar",
+    textposition: "auto",
+    texttemplate: "%{y}",
+    // hoverinfo: "none",
+  };
+  return [target, performance];
+}
+
+export function processSublevelWastageData(
+  data: any,
+  sublevels: { id: string; name: string }[],
+  others: any[]
+): any[] {
+  const x = sublevels.map(({ name }) => name);
+  return others.map(({ id: currentDe, name }) => {
+    const y = sublevels.map(({ id }) => {
+      const dt = data.numerators.find(([p, d]) => d === currentDe && id === p);
       if (dt) {
         return dt[2];
       }
@@ -122,32 +194,20 @@ export function processSublevelData(
       type: "bar",
       textposition: "auto",
       texttemplate: "%{y}",
-      hoverinfo: "none",
+      // hoverinfo: "none",
     };
   });
 }
 
 export function processWastageData(data: any) {
   return [
-    // {
-    //   type: "bar",
-    //   y: Object.keys(data.numerators),
-    //   x: Object.values(data.numerators),
-    //   orientation: "h",
-    //   textposition: "inside",
-    //   texttemplate: "%{x}",
-    //   barmode: "overlay",
-    //   showlegend: false,
-    //   hoverinfo: "none",
-    //   marker: {
-    //     color: "rgb(211, 41, 61)",
-    //   },
-    // },
     {
       values: Object.values(data.numerators),
       labels: Object.keys(data.numerators),
       type: "pie",
+      textinfo: "label+percent+name",
       hoverinfo: "label+percent+name",
+      textposition: "inside",
       hole: 0.4,
     },
   ];

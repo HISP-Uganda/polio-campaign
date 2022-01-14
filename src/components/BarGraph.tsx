@@ -1,10 +1,6 @@
 import {
-  Box,
-  Flex,
-  Spinner,
-  Stack,
-  Text,
-  useColorModeValue,
+  Box, Spinner,
+  Stack
 } from "@chakra-ui/react";
 import { FC } from "react";
 import Plot from "react-plotly.js";
@@ -15,20 +11,17 @@ export const BarGraph: FC<{
   indicator: Indicator;
   bg: string;
   yColor: string;
-  others: any;
+  args: any[];
   title: string;
-  processor: (data: any, others: any) => any;
-}> = ({ indicator, processor, others, bg, yColor, title }) => {
+  processor: (data: any, ...args: any[]) => any;
+}> = ({ indicator, processor, args, bg, yColor, title }) => {
   const { isLoading, isError, isSuccess, error, data } = useSqlView(indicator);
   return (
-    <Stack
-      h="100%"
-      w="100%"
-    >
+    <Stack h="100%" w="100%">
       {isLoading && <Spinner />}
       {isSuccess && (
         <Plot
-          data={processor(data, others)}
+          data={processor(data, ...args)}
           layout={{
             barmode: "group",
             plot_bgcolor: bg,

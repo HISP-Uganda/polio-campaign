@@ -8,15 +8,14 @@ export const mainDashboard: { [key: string]: func } = {
       numerator: {
         sqlView: "eXLGUbjauwc",
         parameters: {
-          dx: "rkPK3fYEJzh",
-          dx1: "Tk6RjMskA93",
+          dx: "Tk6RjMskA93",
           parent,
           aoc,
         },
       },
       denominator: {
-        sqlView: "ezh2YYPPeLN",
-        parameters: {},
+        sqlView: "PSJh5UBG3Nd",
+        parameters: { parent, dx: "NPtjF45ruWX" },
       },
     };
   },
@@ -25,16 +24,19 @@ export const mainDashboard: { [key: string]: func } = {
       numerator: {
         sqlView: "yDJUeci0pSi",
         parameters: {
-          dx: "gfIhVhuWVHr",
-          dx1: "rkPK3fYEJzh",
+          dx: "Tk6RjMskA93",
           parent,
           part,
           aoc,
         },
       },
       denominator: {
-        sqlView: "ezh2YYPPeLN",
-        parameters: {},
+        sqlView: "ev6fFZlMJu0",
+        parameters: {
+          dx: "NPtjF45ruWX",
+          parent,
+          part,
+        },
       },
     };
   },
@@ -76,7 +78,6 @@ export const mainDashboard: { [key: string]: func } = {
       numerator: {
         sqlView: "Ao09K7cUj5m",
         parameters: {
-          level: "4",
           parent,
           aoc,
         },
@@ -367,7 +368,7 @@ export const mainDashboard: { [key: string]: func } = {
     return {
       numerator: {
         sqlView: "PSJh5UBG3Nd",
-        parameters: { parent, dx: "itEQ0muVdaW" },
+        parameters: { parent, dx: "VzJHUfApDOt" },
       },
       denominator: {
         sqlView: "ezh2YYPPeLN",
@@ -380,6 +381,18 @@ export const mainDashboard: { [key: string]: func } = {
       numerator: {
         sqlView: "XMsx2OmhqBa",
         parameters: { parent, dx: "gfIhVhuWVHr", aoc },
+      },
+      denominator: {
+        sqlView: "ezh2YYPPeLN",
+        parameters: {},
+      },
+    };
+  },
+  staffing: (parent, dx, aoc, coc) => {
+    return {
+      numerator: {
+        sqlView: "gffuV4VC4AC",
+        parameters: { parent, dx, aoc, coc },
       },
       denominator: {
         sqlView: "ezh2YYPPeLN",

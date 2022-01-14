@@ -11,10 +11,8 @@ import {
   Spacer,
   Stack,
   Text,
-  useBreakpointValue,
-  useColorMode,
-  useColorModeValue,
-  VStack,
+  useBreakpointValue, useColorModeValue,
+  VStack
 } from "@chakra-ui/react";
 import { Select } from "chakra-react-select";
 import { useStore } from "effector-react";
@@ -26,11 +24,8 @@ import {
   calculateReportingRates,
   calculateStockIndicators,
   computeStaffTarget,
-  computeTeamsReported,
-  computeTeamsTarget,
-  computeWastage,
-  processSingleValue,
-  processWastageData,
+  computeWastage, processCoverageValue, processSingleValue,
+  processWastageData
 } from "../stores/DataProcessors";
 import { setDays } from "../stores/Events";
 import { mainDashboard } from "../stores/Indicators";
@@ -39,6 +34,7 @@ import MainGraphs from "./MainGraphs";
 import MapVisualization from "./MapVisualization";
 import OrgUnitTreeSelect from "./OrgUnitTreeSelect";
 import PieChart from "./PieChart";
+import SimpleSingleValue from "./SimpleSingleValue";
 import SingleValue from "./SingleValue";
 import Speed from "./Speed";
 
@@ -71,30 +67,74 @@ const Dashboard = () => {
       transition={{ duration: 0.4 }}
     >
       <HStack h="100%" w="100%">
+        <Text
+          fontSize={"1.4vw"}
+          fontWeight="bold"
+          textTransform="uppercase"
+          bg="black"
+          color="white"
+        >
+          Reason for unusable
+        </Text>
         <SingleValue
           processor={processSingleValue}
           direction="row"
-          indicator={mainDashboard.posts(store.selectedUnits, days)}
-          title="Sub-counties"
+          indicator={mainDashboard.staffing(
+            store.selectedUnits,
+            "K3QB60hWuQI",
+            days,
+            "XRisIwF1Lk3"
+          )}
+          title="Empty Vials"
         />
         <SingleValue
           processor={processSingleValue}
           direction="row"
-          indicator={mainDashboard.reported(store.selectedUnits, days)}
-          title="Reported"
+          indicator={mainDashboard.staffing(
+            store.selectedUnits,
+            "K3QB60hWuQI",
+            days,
+            "OevThMNdV8u"
+          )}
+          title="Partial Use"
+        />
+        <SingleValue
+          processor={processSingleValue}
+          direction="row"
+          indicator={mainDashboard.staffing(
+            store.selectedUnits,
+            "K3QB60hWuQI",
+            days,
+            "WC7dEdnHjfn"
+          )}
+          title="Contamination"
         />
         <SingleValue
           processor={calculateReportingRates}
           direction="row"
-          indicator={mainDashboard.rates(store.selectedUnits, days)}
-          title="Reporting Rates"
-          hasProgress
-          postfix="%"
+          indicator={mainDashboard.staffing(
+            store.selectedUnits,
+            "K3QB60hWuQI",
+            days,
+            "uDHd6MAn9Ck"
+          )}
+          title="VVM Color Change"
+        />
+        <SingleValue
+          processor={calculateReportingRates}
+          direction="row"
+          indicator={mainDashboard.staffing(
+            store.selectedUnits,
+            "K3QB60hWuQI",
+            days,
+            "q9Dmtmon8oX"
+          )}
+          title="Others Specify"
         />
       </HStack>
     </MotionBox>,
     <MotionBox
-      key={2}
+      key={1}
       initial={{
         opacity: 0,
         translateY: -50,
@@ -107,38 +147,64 @@ const Dashboard = () => {
       }}
       transition={{ duration: 0.4 }}
     >
-      <HStack spacing="20px">
+      <HStack h="100%" w="100%">
+        <Text
+          fontSize={"1.4vw"}
+          fontWeight="bold"
+          textTransform="uppercase"
+          bg="black"
+          color="white"
+        >
+          Staff Breakdown
+        </Text>
         <SingleValue
           processor={processSingleValue}
+          indicator={mainDashboard.staffing(
+            store.selectedUnits,
+            "gfIhVhuWVHr",
+            days,
+            "aEo8TC2ZwD3"
+          )}
           direction="row"
-          indicator={mainDashboard.posts(store.selectedUnits, days)}
-          title="Sub-counties"
+          title="H/Ws"
         />
         <SingleValue
           processor={processSingleValue}
+          indicator={mainDashboard.staffing(
+            store.selectedUnits,
+            "gfIhVhuWVHr",
+            days,
+            "x2B5r3OQCdA"
+          )}
           direction="row"
-          indicator={mainDashboard.reported(store.selectedUnits, days)}
-          title="Reported"
-        />
-        <SingleValue
-          processor={calculateReportingRates}
-          direction="row"
-          indicator={mainDashboard.rates(store.selectedUnits, days)}
-          title="Reporting Rates"
-          hasProgress
-          postfix="%"
+          title="Mobilizers"
         />
         <SingleValue
           processor={processSingleValue}
+          indicator={mainDashboard.staffing(
+            store.selectedUnits,
+            "gfIhVhuWVHr",
+            days,
+            "CXvPyuoP80i"
+          )}
           direction="row"
-          indicator={mainDashboard.totalWorkers(store.selectedUnits, days)}
-          title="Total Workers"
+          title="VHTs"
+        />
+        <SingleValue
+          processor={processSingleValue}
+          indicator={mainDashboard.staffing(
+            store.selectedUnits,
+            "gfIhVhuWVHr",
+            days,
+            "biWOWFj4zxB"
+          )}
+          direction="row"
+          title="PS"
         />
       </HStack>
     </MotionBox>,
   ];
 
-  const { colorMode, toggleColorMode } = useColorMode();
   const handle = useFullScreenHandle();
   const templateColumns = useBreakpointValue({
     base: "100%",
@@ -208,12 +274,16 @@ const Dashboard = () => {
             boxSize="48px"
           />
           <Button>OPV Campaign</Button>
-          <Button>Routine Immunization</Button>
+          {/* <Button>Routine Immunization</Button> */}
           <Spacer />
-          <Button onClick={toggleColorMode} ml="400px">
+          {/* <Button onClick={toggleColorMode} ml="400px">
             Toggle {colorMode === "light" ? "Dark" : "Light"}
-          </Button>
-          <Button onClick={handle.enter}>Enter fullscreen</Button>
+          </Button> */}
+          {handle.active ? (
+            <Button onClick={handle.exit}>Exit fullscreen</Button>
+          ) : (
+            <Button onClick={handle.enter}>Enter fullscreen</Button>
+          )}
           <Box w="370px" bg="white">
             <Select
               value={store.days}
@@ -419,7 +489,7 @@ const Dashboard = () => {
                       title="Zero Dose"
                     />
                     <SingleValue
-                      processor={processSingleValue}
+                      processor={processCoverageValue}
                       indicator={mainDashboard.coverage(
                         store.selectedUnits,
                         days
@@ -430,6 +500,7 @@ const Dashboard = () => {
                     />
                     <Box w="350px">
                       <Speed
+                        processor={processCoverageValue}
                         indicator={mainDashboard.coverage(
                           store.selectedUnits,
                           days
@@ -508,7 +579,7 @@ const Dashboard = () => {
                       processor={computeStaffTarget}
                       otherArgs={[realDays]}
                       indicator={mainDashboard.staffTarget(store.selectedUnits)}
-                      title="Total Target"
+                      title="Staff Planned"
                     />
                     <SingleValue
                       processor={processSingleValue}
@@ -516,10 +587,52 @@ const Dashboard = () => {
                         store.selectedUnits,
                         days
                       )}
-                      title="Total Reported"
+                      title="Staff Available"
                     />
+                    <HStack w="100%" alignContent="space-around">
+                      <SimpleSingleValue
+                        processor={processSingleValue}
+                        indicator={mainDashboard.staffing(
+                          store.selectedUnits,
+                          "gfIhVhuWVHr",
+                          days,
+                          "aEo8TC2ZwD3"
+                        )}
+                        title="H/Ws"
+                      />
+                      <SimpleSingleValue
+                        processor={processSingleValue}
+                        indicator={mainDashboard.staffing(
+                          store.selectedUnits,
+                          "gfIhVhuWVHr",
+                          days,
+                          "x2B5r3OQCdA"
+                        )}
+                        title="Mobilizers"
+                      />
+                      <SimpleSingleValue
+                        processor={processSingleValue}
+                        indicator={mainDashboard.staffing(
+                          store.selectedUnits,
+                          "gfIhVhuWVHr",
+                          days,
+                          "CXvPyuoP80i"
+                        )}
+                        title="VHTs"
+                      />
+                      <SimpleSingleValue
+                        processor={processSingleValue}
+                        indicator={mainDashboard.staffing(
+                          store.selectedUnits,
+                          "gfIhVhuWVHr",
+                          days,
+                          "biWOWFj4zxB"
+                        )}
+                        title="PS"
+                      />
+                    </HStack>
                     <SingleValue
-                      processor={computeTeamsTarget}
+                      processor={processSingleValue}
                       indicator={mainDashboard.staffTeamTarget(
                         store.selectedUnits
                       )}
@@ -527,10 +640,11 @@ const Dashboard = () => {
                       otherArgs={[realDays]}
                     />
                     <SingleValue
-                      processor={computeTeamsReported}
-                      indicator={mainDashboard.staffTeamReported(
+                      processor={processSingleValue}
+                      indicator={mainDashboard.staffing(
                         store.selectedUnits,
-                        days
+                        days,
+                        "aEo8TC2ZwD3"
                       )}
                       title="Reported Teams"
                     />
@@ -566,7 +680,7 @@ const Dashboard = () => {
                           color="gray.500"
                           isTruncated
                         >
-                          Stock Status
+                          Stock Status (Doses)
                         </Text>
                       </Flex>
                       <VStack

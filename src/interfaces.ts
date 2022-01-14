@@ -9,6 +9,7 @@ export interface Store {
   zoom: number;
   sublevel: number;
   days: any[];
+  sublevels: any[];
 }
 
 export interface DataValue {

@@ -8,6 +8,7 @@ import {
   setLocations,
   setSelectedUnits,
   setSublevel,
+  setSublevels,
   setUserUnits,
   setZoom,
 } from "./Events";
@@ -24,17 +25,18 @@ export const $store = domain
     days: [
       {
         label: "Day 1",
-        value: "10144",
+        value: "LnW4HiRwsGV",
       },
       {
         label: "Day 2",
-        value: "10145",
+        value: "vMnKiXj54yp",
       },
       {
         label: "Day 3",
-        value: "10146",
+        value: "GyRRnHvTiD7",
       },
     ],
+    sublevels: [],
   })
   .on(changeCurrentUser, (state, user) => {
     return { ...state, currentUser: user };
@@ -62,8 +64,11 @@ export const $store = domain
   })
   .on(setDays, (state, days) => {
     return { ...state, days };
+  })
+  .on(setSublevels, (state, sublevels) => {
+    return { ...state, sublevels };
   });
-
+  
 export const $days = $store.map((state) => {
   return state.days.map((d) => d.value).join("-");
 });

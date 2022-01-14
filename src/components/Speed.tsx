@@ -3,11 +3,13 @@ import { FC } from "react";
 import Plot from "react-plotly.js";
 import { Indicator } from "../interfaces";
 import { useSqlView } from "../stores/Queries";
+import { formatter } from "../utils";
 
 const Speed: FC<{
   indicator: Indicator;
   title: string;
-}> = ({ indicator, title }) => {
+  processor: (...data: any[]) => any;
+}> = ({ indicator, title, processor }) => {
   const bg = useColorModeValue("white", "#2D3748");
   const { isLoading, isError, isSuccess, error, data } = useSqlView(indicator);
   return (
@@ -17,26 +19,14 @@ const Speed: FC<{
         <>
           <Text pl="15px">
             {title}
-            &nbsp; (
-            {Number(data.numerators) !== NaN &&
-            Number(data.denominators) !== NaN
-              ? Number(data.denominators) === 0
-                ? 0
-                : (data.numerators / data.denominators) * 100
-              : 0}
+            &nbsp; ({formatter.format(processor(data))}
             %)
           </Text>
           <Plot
             data={[
               {
                 domain: { x: [0, 1], y: [0, 1] },
-                value:
-                  Number(data.numerators) !== NaN &&
-                  Number(data.denominators) !== NaN
-                    ? Number(data.denominators) === 0
-                      ? 0
-                      : (data.numerators / data.denominators) * 100
-                    : 0,
+                value: processor(data),
                 type: "indicator",
                 mode: "gauge",
                 gauge: {
