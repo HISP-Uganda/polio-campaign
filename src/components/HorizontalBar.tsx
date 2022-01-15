@@ -1,58 +1,41 @@
-import {
-  Box, Spinner,
-  Stack
-} from "@chakra-ui/react";
-import { FC } from "react";
+import React, { FC } from "react";
 import Plot from "react-plotly.js";
+import { Flex, Text, Spinner, Box } from "@chakra-ui/react";
 import { Indicator } from "../interfaces";
 import { useSqlView } from "../stores/Queries";
 
-export const BarGraph: FC<{
+const HorizontalBar: FC<{
   indicator: Indicator;
-  bg: string;
-  yColor: string;
-  args: any[];
-  title: string;
-  processor: (data: any, ...args: any[]) => any;
-}> = ({ indicator, processor, args, bg, yColor, title }) => {
+  processor: (data: any) => any;
+}> = ({ indicator, processor }) => {
   const { isLoading, isError, isSuccess, error, data } = useSqlView(indicator);
+
   return (
-    <Stack h="100%" w="100%">
+    <>
       {isLoading && <Spinner />}
       {isSuccess && (
         <Plot
-          data={processor(data, ...args)}
+          data={processor(data)}
           layout={{
-            barmode: "group",
-            plot_bgcolor: bg,
-            paper_bgcolor: bg,
             autosize: true,
-            legend: {
-              orientation: "h",
-              yanchor: "bottom",
-              y: -0.15,
-              xanchor: "right",
-              x: 0.6,
-              font: {
-                color: yColor,
-              },
+            showlegend: false,
+            xaxis: {
+              showgrid: false,
+              zeroline: false,
             },
             margin: {
-              pad: 5,
+              pad: 0,
               r: 5,
               t: 0,
-              l: 40,
+              l: 120,
               b: 20,
             },
+
             yaxis: {
               showgrid: true,
-              color: yColor,
               zeroline: true,
               gridcolor: "lightgray",
               zerolinecolor: "lightgray",
-            },
-            xaxis: {
-              color: yColor,
             },
           }}
           style={{ width: "100%", height: "100%" }}
@@ -60,6 +43,8 @@ export const BarGraph: FC<{
         />
       )}
       {isError && <Box>{error.message}</Box>}
-    </Stack>
+    </>
   );
 };
+
+export default HorizontalBar;

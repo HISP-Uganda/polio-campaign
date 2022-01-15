@@ -1,9 +1,10 @@
 const config = {
-    type: 'app',
+  type: "app",
+  name: "polio-campaign",
+  title: "Polio Immunization Campaign",
+  entryPoints: {
+    app: "./src/AppWrapper.js",
+  },
+};
 
-    entryPoints: {
-        app: './src/AppWrapper.js',
-    },
-}
-
-module.exports = config
+module.exports = config;

@@ -1,54 +1,113 @@
+import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react";
+import { useStore } from "effector-react";
+import { FC, useState } from "react";
+import useInterval from "react-useinterval";
+
 import {
-  Tabs,
-  TabList,
-  TabPanels,
-  Tab,
-  TabPanel,
-  Box,
-  Flex,
-} from "@chakra-ui/react";
-import { processBarData } from "../stores/DataProcessors";
+  processBarData,
+  processSublevelWastageData,
+  processSublevelPerformance,
+  processWastageBarData,
+} from "../stores/DataProcessors";
 import { mainDashboard } from "../stores/Indicators";
+import { $days, $store } from "../stores/Store";
 import { BarGraph } from "./BarGraph";
-const MainGraphs = () => {
+import TableVisualization from "./TableVisualization";
+const MainGraphs: FC<{ yColor: string; bg: string }> = ({ yColor, bg }) => {
+  const store = useStore($store);
+  const days = useStore($days);
+  const [tabIndex, setTabIndex] = useState<number>(0);
+
+  const increment = () => setTabIndex((s: number) => (s + 1) % 5);
+  useInterval(increment, 1000 * 60 * 2);
+
   return (
     <Tabs
+      flex={1}
+      index={tabIndex}
+      onChange={(index) => setTabIndex(index)}
       h={["auto", "auto", "100%"]}
       w="100%"
       display="flex"
       flexDirection="column"
-      bg="white"
     >
       <TabList flexDirection={["column", "column", "row"]}>
-        <Tab fontSize="2xl">Performance(Daily)</Tab>
-        <Tab fontSize="2xl">Performance(Sub-level)</Tab>
-        <Tab fontSize="2xl">Wastage(Daily)</Tab>
-        <Tab fontSize="2xl">Wastage(Sub-level)</Tab>
-        {/* <Tab>Performance Table</Tab> */}
+        <Tab fontSize="lg">Performance(Daily)</Tab>
+        <Tab fontSize="lg">Performance(Sub-level)</Tab>
+        <Tab fontSize="lg">Wastage(Daily)</Tab>
+        <Tab fontSize="lg">Wastage(Sub-level)</Tab>
+        <Tab fontSize="lg">Table</Tab>
       </TabList>
-      <TabPanels flex={1}>
-        <TabPanel p={0} m={0} h={["700px", "700px", "100%"]}>
+      <TabPanels h="100%" w="100%" flex={1}>
+        <TabPanel p={0} m={0} h="100%" w="100%">
           <BarGraph
-            indicator={mainDashboard["FExZQGMUB38"]}
+            title="Daily performance"
+            bg={bg}
+            yColor={yColor}
+            indicator={mainDashboard.performance(store.selectedUnits, days)}
             processor={processBarData}
-            others={["rkPK3fYEJzh", "Tk6RjMskA93"]}
+            args={[store.days]}
           />
         </TabPanel>
-        <TabPanel h="100%" p={0} m={0}>
+        <TabPanel h="100%" w="100%" p={0} m={0}>
           <BarGraph
-            indicator={mainDashboard["dM3IJRupgEI"]}
-            processor={processBarData}
-            others={["gfIhVhuWVHr", "rkPK3fYEJzh"]}
+            title="Sublevel Daily performance"
+            bg={bg}
+            yColor={yColor}
+            indicator={mainDashboard.subLevelPerformance(
+              store.selectedUnits,
+              store.sublevel,
+              days
+            )}
+            processor={processSublevelPerformance}
+            args={[store.sublevels, store.days.length]}
           />
         </TabPanel>
-        <TabPanel>
-          <p>3!</p>
+        <TabPanel h="100%" w="100%" p={0} m={0}>
+          <BarGraph
+            title="Daily Unusable vials"
+            bg={bg}
+            yColor={yColor}
+            indicator={mainDashboard.wastage(store.selectedUnits, days)}
+            processor={processWastageBarData}
+            args={[
+              store.days,
+              [
+                { id: "XRisIwF1Lk3", name: "Empty Vials" },
+                { id: "WC7dEdnHjfn", name: "Contamination" },
+                { id: "OevThMNdV8u", name: "Partial Use" },
+                { id: "uDHd6MAn9Ck", name: "VVM Color Change" },
+                { id: "q9Dmtmon8oX", name: "Other (Specify)" },
+              ],
+            ]}
+          />
         </TabPanel>
-        <TabPanel>
-          <p>4!</p>
+        <TabPanel h="100%" w="100%" p={0} m={0}>
+          <BarGraph
+            title="Sublevel Unusable vials"
+            bg={bg}
+            yColor={yColor}
+            indicator={mainDashboard.sublevelWastage(
+              store.selectedUnits,
+              store.sublevel,
+              days
+            )}
+            processor={processSublevelWastageData}
+            args={[
+              store.sublevels,
+              [
+                { id: "WC7dEdnHjfn", name: "Contamination" },
+                { id: "OevThMNdV8u", name: "Partial use" },
+                { id: "uDHd6MAn9Ck", name: "VVM Color Change" },
+                { id: "q9Dmtmon8oX", name: "Other (Specify)" },
+              ],
+            ]}
+          />
         </TabPanel>
-        <TabPanel>
-          <p>5!</p>
+        <TabPanel h="100%" w="100%" p={0} m={0}>
+          <TableVisualization
+            indicator={mainDashboard.table(store.selectedUnits, days)}
+          />
         </TabPanel>
       </TabPanels>
     </Tabs>
