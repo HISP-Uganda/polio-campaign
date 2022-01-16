@@ -12,13 +12,12 @@ import {
 import { mainDashboard } from "../stores/Indicators";
 import { $days, $store } from "../stores/Store";
 import { BarGraph } from "./BarGraph";
-import TableVisualization from "./TableVisualization";
 const MainGraphs: FC<{ yColor: string; bg: string }> = ({ yColor, bg }) => {
   const store = useStore($store);
   const days = useStore($days);
   const [tabIndex, setTabIndex] = useState<number>(0);
 
-  const increment = () => setTabIndex((s: number) => (s + 1) % 5);
+  const increment = () => setTabIndex((s: number) => (s + 1) % 4);
   useInterval(increment, 1000 * 60 * 2);
 
   return (
@@ -36,7 +35,6 @@ const MainGraphs: FC<{ yColor: string; bg: string }> = ({ yColor, bg }) => {
         <Tab fontSize="lg">Performance(Sub-level)</Tab>
         <Tab fontSize="lg">Wastage(Daily)</Tab>
         <Tab fontSize="lg">Wastage(Sub-level)</Tab>
-        <Tab fontSize="lg">Table</Tab>
       </TabList>
       <TabPanels h="100%" w="100%" flex={1}>
         <TabPanel p={0} m={0} h="100%" w="100%">
@@ -102,11 +100,6 @@ const MainGraphs: FC<{ yColor: string; bg: string }> = ({ yColor, bg }) => {
                 { id: "q9Dmtmon8oX", name: "Other (Specify)" },
               ],
             ]}
-          />
-        </TabPanel>
-        <TabPanel h="100%" w="100%" p={0} m={0}>
-          <TableVisualization
-            indicator={mainDashboard.table(store.selectedUnits, days)}
           />
         </TabPanel>
       </TabPanels>

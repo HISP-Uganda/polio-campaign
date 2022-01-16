@@ -63,13 +63,41 @@ export const processSingleValue = (data: any) => {
   }
   return 0;
 };
-export const processCoverageValue = (data: any) => {
+export const processCoverageValue = (data: any, days: number) => {
   if (
     Number(data.numerators) !== NaN &&
     Number(data.denominators) !== NaN &&
     Number(data.denominators) !== 0
   ) {
-    return (Number(data.numerators) * 100) / Number(data.denominators);
+    return (
+      (Number(data.numerators) * 100) / (Number(data.denominators) * (days / 3))
+    );
+  }
+  return 0;
+};
+
+export const processMapCoverage = (
+  numerators: any,
+  denominators: any,
+  days: number
+) => {
+  if (
+    Number(numerators) !== NaN &&
+    Number(denominators) !== NaN &&
+    Number(denominators) !== 0
+  ) {
+    return (Number(numerators) * 100) / (Number(denominators) * (days / 3));
+  }
+  return 0;
+};
+
+export const processMapSingleValue = (numerators: any, denominators: any) => {
+  if (
+    Number(numerators) !== NaN &&
+    Number(denominators) !== NaN &&
+    Number(denominators) !== 0
+  ) {
+    return Number(numerators) / Number(denominators);
   }
   return 0;
 };
@@ -88,9 +116,14 @@ export const computeWastage = (data: any) => {
   if (
     Number(data.numerators) !== NaN &&
     Number(data.denominators) !== NaN &&
+    Number(data.other) !== NaN &&
     Number(data.denominators) !== 0
   ) {
-    return (Number(data.numerators) * 50 * 100) / Number(data.denominators);
+    const issued = Number(data.numerators) * 50;
+    const useableReturned = Number(data.denominators) * 50;
+    const vaccinated = Number(data.other);
+    const used = issued - useableReturned;
+    return ((used - vaccinated) * 100) / used;
   }
   return 0;
 };
@@ -104,6 +137,17 @@ export const computeTeamsTarget = (data: any, days: number) => {
     return (
       (Number(data.numerators) * days) / (Number(data.denominators) * 3 * 3)
     );
+  }
+  return 0;
+};
+
+export const computeVaccinationTarget = (data: any, days: number) => {
+  if (
+    Number(data.numerators) !== NaN &&
+    Number(data.denominators) !== NaN &&
+    Number(data.denominators) !== 0
+  ) {
+    return (Number(data.numerators) * days) / (Number(data.denominators) * 3);
   }
   return 0;
 };

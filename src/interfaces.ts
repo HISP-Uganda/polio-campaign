@@ -1,3 +1,4 @@
+import { Position } from "@turf/turf";
 export interface Store {
   currentUser: string;
   userUnits: any[];
@@ -10,6 +11,7 @@ export interface Store {
   sublevel: number;
   days: any[];
   sublevels: any[];
+  mapCenter?:Position;
 }
 
 export interface DataValue {
@@ -19,4 +21,5 @@ export interface DataValue {
 export interface Indicator {
   numerator: DataValue;
   denominator: DataValue;
+  other?: DataValue;
 }

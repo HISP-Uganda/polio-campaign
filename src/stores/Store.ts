@@ -6,6 +6,7 @@ import {
   setDays,
   setGeojson,
   setLocations,
+  setMapCenter,
   setSelectedUnits,
   setSublevel,
   setSublevels,
@@ -67,8 +68,11 @@ export const $store = domain
   })
   .on(setSublevels, (state, sublevels) => {
     return { ...state, sublevels };
+  })
+  .on(setMapCenter, (state, mapCenter) => {
+    return { ...state, mapCenter };
   });
-  
+
 export const $days = $store.map((state) => {
   return state.days.map((d) => d.value).join("-");
 });

@@ -2,8 +2,36 @@ import { useDataEngine } from "@dhis2/app-runtime";
 import { useQuery } from "react-query";
 import { fromPairs, isEmpty } from "lodash";
 import { Indicator } from "../interfaces";
-import { setSelectedUnits, setSublevels, setUserUnits } from "./Events";
+import {
+  setGeojson,
+  setMapCenter,
+  setSelectedUnits,
+  setSublevels,
+  setUserUnits,
+} from "./Events";
 import { center } from "@turf/turf";
+import { UNIT_DIS } from "../utils";
+
+const makeQuery2 = (level: number | string, parent: string) => {
+  return {
+    geojson: {
+      resource: "organisationUnits.geojson",
+      params: {
+        level,
+        parent,
+      },
+    },
+    sublevel: {
+      resource: "organisationUnits.json",
+      params: {
+        level,
+        fields: "id,name",
+        paging: false,
+        order: "shortName:desc",
+      },
+    },
+  };
+};
 
 export function useLoader() {
   const engine = useDataEngine();
@@ -58,6 +86,12 @@ export function useSqlView(indicator: Indicator) {
     return val;
   });
 
+  const others = indicator.other ? indicator.other.parameters : {};
+
+  const otherKeys = Object.entries(others).flatMap((val) => {
+    return val;
+  });
+
   const numeratorConditions = Object.entries(indicator.numerator.parameters)
     .map(([col, val]) => {
       return `var=${col}:${val}`;
@@ -65,6 +99,12 @@ export function useSqlView(indicator: Indicator) {
     .join("&");
 
   const denominatorConditions = Object.entries(indicator.denominator.parameters)
+    .map(([col, val]) => {
+      return `var=${col}:${val}`;
+    })
+    .join("&");
+
+  const otherConditions = Object.entries(others)
     .map(([col, val]) => {
       return `var=${col}:${val}`;
     })
@@ -87,6 +127,16 @@ export function useSqlView(indicator: Indicator) {
       },
     };
   }
+  if (!isEmpty(indicator.other)) {
+    query = {
+      ...query,
+      other: {
+        resource: !!otherConditions
+          ? `sqlViews/${indicator.other.sqlView}/data?${otherConditions}&paging=false`
+          : `sqlViews/${indicator.other.sqlView}/data?paging=false`,
+      },
+    };
+  }
 
   return useQuery<any, Error>(
     [
@@ -95,6 +145,7 @@ export function useSqlView(indicator: Indicator) {
       indicator.denominator.sqlView,
       ...numeratorKeys,
       ...denominatorKeys,
+      ...otherKeys,
     ],
     async () => {
       const {
@@ -104,9 +155,11 @@ export function useSqlView(indicator: Indicator) {
         denominator: {
           listGrid: { rows: denRows, headers: denHeaders },
         },
+        ...other
       }: any = await engine.query(query);
       let numerators: any = numRows;
       let denominators: any = denRows;
+      let others: any = {};
       if (numHeaders.length === 2) {
         numerators = fromPairs(numRows);
       } else if (numHeaders.length === 1) {
@@ -117,15 +170,28 @@ export function useSqlView(indicator: Indicator) {
       } else if (numHeaders.length === 1) {
         denominators = denRows[0][0];
       }
+      if (other.other) {
+        const {
+          listGrid: { rows: otherRows, headers: otherHeaders },
+        } = other.other;
+        if (otherHeaders.length === 1) {
+          others = { ...others, other: otherRows[0][0] };
+        } else if (otherHeaders.length === 2) {
+          others = { ...others, other: fromPairs(otherRows) };
+        } else {
+          others = { ...others, otherHeaders, other: otherRows };
+        }
+      }
       return {
         numerators,
         numHeaders,
         denHeaders,
         denominators,
+        ...others,
       };
     },
     {
-      refetchInterval: 1000 * 5,
+      // refetchInterval: 1000 * 10,
     }
   );
 }

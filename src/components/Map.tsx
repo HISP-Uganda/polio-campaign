@@ -1,19 +1,22 @@
 import Plot from "react-plotly.js";
-import { Box, Spinner, Flex, Text,Stack } from "@chakra-ui/react";
+import { Box, Spinner, Flex, Text, Stack } from "@chakra-ui/react";
 import { useSqlView } from "../stores/Queries";
 import { Indicator } from "../interfaces";
 import { FC } from "react";
 import { Position } from "@turf/turf";
-import { $store } from "../stores/Store";
+import { $realDays, $store } from "../stores/Store";
 import { useStore } from "effector-react";
 const Map: FC<{
   metadata: any;
   indicator: Indicator;
   center: Position;
-  title:string;
-}> = ({ metadata, indicator, center,title }) => {
+  title: string;
+  processor: (...data: any[]) => any;
+  otherArgs?: any[];
+}> = ({ metadata, indicator, center, title, processor, otherArgs }) => {
   const { isLoading, isError, isSuccess, error, data } = useSqlView(indicator);
   const store = useStore($store);
+  const realDays = useStore($realDays);
   return (
     <Stack h="100%" spacing={0}>
       {isLoading && <Spinner />}
@@ -46,8 +49,12 @@ const Map: FC<{
                   locations: metadata.organisationUnits.map(
                     (ou: { id: string; name: string }) => ou.name
                   ),
-                  z: metadata.organisationUnits.map(
-                    ({ id }) => data.numerators[id] || 0
+                  z: metadata.organisationUnits.map(({ id }) =>
+                    processor(
+                      data.numerators[id] || 0,
+                      data.denominators[id] || 0,
+                      ...otherArgs
+                    )
                   ),
                   featureidkey: "properties.name",
                   geojson: metadata.geojson,

@@ -279,6 +279,28 @@ export const mainDashboard: { [key: string]: func } = {
       },
     };
   },
+  districtCoverage: (parent, part, aoc) => {
+    return {
+      numerator: {
+        sqlView: "zHnhTlh7Hbd",
+        parameters: {
+          dx: "Tk6RjMskA93",
+          part,
+          parent,
+          aoc,
+        },
+      },
+      denominator: {
+        sqlView: "zHnhTlh7Hbd",
+        parameters: {
+          dx: "NPtjF45ruWX",
+          part,
+          parent,
+          aoc,
+        },
+      },
+    };
+  },
   districtsWastage: (parent, part, aoc) => {
     return {
       numerator: {
@@ -316,9 +338,13 @@ export const mainDashboard: { [key: string]: func } = {
     return {
       numerator: {
         sqlView: "XMsx2OmhqBa",
-        parameters: { parent, dx: "K3QB60hWuQI", aoc },
+        parameters: { parent, dx: "Sfw4l2p8IpA", aoc },
       },
       denominator: {
+        sqlView: "XMsx2OmhqBa",
+        parameters: { parent, dx: "UqHuKPGmatX", aoc },
+      },
+      other: {
         sqlView: "XMsx2OmhqBa",
         parameters: { parent, dx: "Tk6RjMskA93", aoc },
       },
