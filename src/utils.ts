@@ -26,7 +26,7 @@ export const findColor = (value: number) => {
   if (value <= 80) {
     return "#fdae61";
   }
-  if (value <= 90) {
+  if (value <= 95) {
     return "#a6d96a";
   }
   return "#1a9641";
@@ -38,3 +38,5 @@ export const findWastageColor = (value: number) => {
   }
   return "#d7191c";
 };
+
+export const COLORS = ["#d7191c", "#fdae61", "#a6d96a", "#1a9641", "#ffffbf"];

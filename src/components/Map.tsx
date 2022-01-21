@@ -6,6 +6,7 @@ import { FC } from "react";
 import { Position } from "@turf/turf";
 import { $realDays, $store } from "../stores/Store";
 import { useStore } from "effector-react";
+import { isArray } from "lodash";
 const Map: FC<{
   metadata: any;
   indicator: Indicator;
@@ -13,7 +14,7 @@ const Map: FC<{
   title: string;
   processor: (...data: any[]) => any;
   otherArgs?: any[];
-}> = ({ metadata, indicator, center, title, processor, otherArgs }) => {
+}> = ({ metadata, indicator, center, title, processor, otherArgs = [] }) => {
   const { isLoading, isError, isSuccess, error, data } = useSqlView(indicator);
   const store = useStore($store);
   const realDays = useStore($realDays);
@@ -46,16 +47,19 @@ const Map: FC<{
               data={[
                 {
                   type: "choroplethmapbox",
+                  hoverformat: ".2r",
                   locations: metadata.organisationUnits.map(
                     (ou: { id: string; name: string }) => ou.name
                   ),
-                  z: metadata.organisationUnits.map(({ id }) =>
-                    processor(
+                  z: metadata.organisationUnits.map(({ id }) => {
+                    return processor(
                       data.numerators[id] || 0,
-                      data.denominators[id] || 0,
+                      isArray(data.denominators)
+                        ? data.denominators[0][0]
+                        : data.denominators[id],
                       ...otherArgs
-                    )
-                  ),
+                    );
+                  }),
                   featureidkey: "properties.name",
                   geojson: metadata.geojson,
                 } as any,

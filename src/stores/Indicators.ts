@@ -291,12 +291,11 @@ export const mainDashboard: { [key: string]: func } = {
         },
       },
       denominator: {
-        sqlView: "zHnhTlh7Hbd",
+        sqlView: "afxvxjTLBTW",
         parameters: {
           dx: "NPtjF45ruWX",
           part,
           parent,
-          aoc,
         },
       },
     };
@@ -385,8 +384,8 @@ export const mainDashboard: { [key: string]: func } = {
         parameters: { parent, dx: "gfIhVhuWVHr", aoc },
       },
       denominator: {
-        sqlView: "ezh2YYPPeLN",
-        parameters: {},
+        sqlView: "gffuV4VC4AC",
+        parameters: { parent, dx: "gfIhVhuWVHr", aoc, coc: "biWOWFj4zxB" },
       },
     };
   },
@@ -423,6 +422,30 @@ export const mainDashboard: { [key: string]: func } = {
       denominator: {
         sqlView: "ezh2YYPPeLN",
         parameters: {},
+      },
+    };
+  },
+  nationalTarget: (parent, dx) => {
+    return {
+      numerator: {
+        sqlView: "o0xJEcpE83O",
+        parameters: { parent, dx },
+      },
+      denominator: {
+        sqlView: "ezh2YYPPeLN",
+        parameters: {},
+      },
+    };
+  },
+  nationalCoverage: (parent, dx, aoc) => {
+    return {
+      numerator: {
+        sqlView: "XMsx2OmhqBa",
+        parameters: { parent, dx: "Tk6RjMskA93", aoc },
+      },
+      denominator: {
+        sqlView: "o0xJEcpE83O",
+        parameters: { parent, dx },
       },
     };
   },

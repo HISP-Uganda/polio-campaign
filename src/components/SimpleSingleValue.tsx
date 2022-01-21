@@ -7,7 +7,8 @@ const SimpleSingleValue: FC<{
   indicator: Indicator;
   title: string;
   processor: (...args: any[]) => any;
-}> = ({ indicator, title, processor }) => {
+  otherArgs?: any[];
+}> = ({ indicator, title, processor, otherArgs = [] }) => {
   const { isLoading, isError, isSuccess, error, data } = useSqlView(indicator);
 
   return (
@@ -15,8 +16,10 @@ const SimpleSingleValue: FC<{
       {isLoading && <Spinner />}
       {isSuccess && (
         <>
-          <Text>{title}</Text>
-          <Text>{formatter.format(processor(data))}</Text>
+          <Text fontWeight="bold">{title}</Text>
+          <Text color="darkgreen">
+            {formatter.format(processor(data, ...otherArgs))}
+          </Text>
         </>
       )}
       {isError && <Text>{error.message}</Text>}

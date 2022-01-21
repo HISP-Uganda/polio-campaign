@@ -10,11 +10,12 @@ import {
   processWastageBarData,
 } from "../stores/DataProcessors";
 import { mainDashboard } from "../stores/Indicators";
-import { $days, $store } from "../stores/Store";
+import { $days, $store,$realDays } from "../stores/Store";
 import { BarGraph } from "./BarGraph";
 const MainGraphs: FC<{ yColor: string; bg: string }> = ({ yColor, bg }) => {
   const store = useStore($store);
   const days = useStore($days);
+  const realDays = useStore($realDays);
   const [tabIndex, setTabIndex] = useState<number>(0);
 
   const increment = () => setTabIndex((s: number) => (s + 1) % 4);
@@ -44,7 +45,7 @@ const MainGraphs: FC<{ yColor: string; bg: string }> = ({ yColor, bg }) => {
             yColor={yColor}
             indicator={mainDashboard.performance(store.selectedUnits, days)}
             processor={processBarData}
-            args={[store.days]}
+            args={[store.days, realDays]}
           />
         </TabPanel>
         <TabPanel h="100%" w="100%" p={0} m={0}>
@@ -58,7 +59,7 @@ const MainGraphs: FC<{ yColor: string; bg: string }> = ({ yColor, bg }) => {
               days
             )}
             processor={processSublevelPerformance}
-            args={[store.sublevels, store.days.length]}
+            args={[store.sublevels, realDays]}
           />
         </TabPanel>
         <TabPanel h="100%" w="100%" p={0} m={0}>

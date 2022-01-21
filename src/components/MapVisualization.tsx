@@ -1,4 +1,4 @@
-import { Box, Flex, Spinner, Text } from "@chakra-ui/react";
+import { Box, Spinner } from "@chakra-ui/react";
 import { useStore } from "effector-react";
 import { FC } from "react";
 import { Indicator } from "../interfaces";

@@ -36,6 +36,10 @@ export const $store = domain
         label: "Day 3",
         value: "GyRRnHvTiD7",
       },
+      {
+        label: "Day 4 (Mop up day)",
+        value: "u6Bex2ohisH",
+      },
     ],
     sublevels: [],
   })
@@ -78,5 +82,13 @@ export const $days = $store.map((state) => {
 });
 
 export const $realDays = $store.map((state) => {
+  const day4 = state.days.find(({ value }) => value === "u6Bex2ohisH");
+  if (day4 && state.days.length > 1) {
+    return state.days.length - 1;
+  }
+  if (day4 && state.days.length === 1) {
+    return 1;
+  }
+
   return state.days.length;
 });

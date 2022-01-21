@@ -27,12 +27,17 @@ export const BarGraph: FC<{
             plot_bgcolor: bg,
             paper_bgcolor: bg,
             autosize: true,
+            showlegend: true,
             legend: {
               orientation: "h",
-              yanchor: "bottom",
-              y: -0.15,
-              xanchor: "right",
-              x: 0.6,
+              x: 0,
+              y: 1.05,
+              traceorder: "normal",
+              // yanchor: "top",
+              // y: -0.15,
+              // xanchor: "left",
+              // x: 0.6,
+              // bgcolor: "yellow",
               font: {
                 color: yColor,
               },
@@ -40,7 +45,7 @@ export const BarGraph: FC<{
             margin: {
               pad: 5,
               r: 5,
-              t: 0,
+              t: 20,
               l: 40,
               b: 20,
             },
@@ -53,6 +58,7 @@ export const BarGraph: FC<{
             },
             xaxis: {
               color: yColor,
+              automargin: true,
             },
           }}
           style={{ width: "100%", height: "100%" }}

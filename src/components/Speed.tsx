@@ -10,7 +10,8 @@ const Speed: FC<{
   title: string;
   otherArgs?: any[];
   processor: (...data: any[]) => any;
-}> = ({ indicator, title, processor, otherArgs }) => {
+  height?: number;
+}> = ({ indicator, title, processor, otherArgs, height = 60 }) => {
   const bg = useColorModeValue("white", "#2D3748");
   const { isLoading, isError, isSuccess, error, data } = useSqlView(indicator);
   return (
@@ -37,8 +38,8 @@ const Speed: FC<{
                   steps: [
                     { range: [0, 50], color: "#d7191c" },
                     { range: [50, 80], color: "#fdae61" },
-                    { range: [80, 90], color: "#a6d96a" },
-                    { range: [90, 100], color: "#1a9641" },
+                    { range: [80, 95], color: "#a6d96a" },
+                    { range: [95, 100], color: "#1a9641" },
                   ],
                   // threshold: {
                   //   line: { color: "red", width: 4 },
@@ -52,7 +53,7 @@ const Speed: FC<{
               plot_bgcolor: bg,
               paper_bgcolor: bg,
               autosize: true,
-              height: 60,
+              height,
               margin: { t: 5, b: 21, l: 15, r: 20 },
             }}
             style={{ width: "100%", height: "100%" }}

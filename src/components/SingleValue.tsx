@@ -14,6 +14,7 @@ const ST: FC<{
   tooltip: string;
   color?: string;
   otherColor?: func;
+  hasLabel?: boolean;
 }> = ({
   title,
   data,
@@ -22,6 +23,7 @@ const ST: FC<{
   tooltip = "",
   color,
   otherColor,
+  hasLabel,
 }) => {
   return (
     <Stack
@@ -32,16 +34,18 @@ const ST: FC<{
       justifyItems="center"
       direction={direction}
     >
-      <Tooltip label={`${tooltip} ${Number(data)}`} hasArrow placement="top">
-        <Text
-          textTransform="uppercase"
-          fontWeight="medium"
-          fontSize="2.0vh"
-          isTruncated
-        >
-          {title}
-        </Text>
-      </Tooltip>
+      {hasLabel && (
+        <Tooltip label={`${tooltip} ${Number(data)}`} hasArrow placement="top">
+          <Text
+            textTransform="uppercase"
+            fontWeight="medium"
+            fontSize="2.0vh"
+            isTruncated
+          >
+            {title}
+          </Text>
+        </Tooltip>
+      )}
 
       <Text
         fontSize={"2.5vh"}
@@ -71,6 +75,7 @@ const SingleValue: FC<{
   otherArgs?: any[];
   color?: string;
   otherColor?: func;
+  hasLabel?: boolean;
 }> = ({
   indicator,
   title,
@@ -80,7 +85,8 @@ const SingleValue: FC<{
   processor,
   color,
   otherArgs = [],
-  otherColor
+  otherColor,
+  hasLabel = true,
 }) => {
   const { isLoading, isError, isSuccess, error, data } = useSqlView(indicator);
   return (
@@ -88,6 +94,7 @@ const SingleValue: FC<{
       {isLoading && <Spinner />}
       {isSuccess && (
         <ST
+          hasLabel={hasLabel}
           color={color}
           otherColor={otherColor}
           tooltip={tooltip}

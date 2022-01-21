@@ -2,36 +2,8 @@ import { useDataEngine } from "@dhis2/app-runtime";
 import { useQuery } from "react-query";
 import { fromPairs, isEmpty } from "lodash";
 import { Indicator } from "../interfaces";
-import {
-  setGeojson,
-  setMapCenter,
-  setSelectedUnits,
-  setSublevels,
-  setUserUnits,
-} from "./Events";
+import { setSelectedUnits, setSublevels, setUserUnits } from "./Events";
 import { center } from "@turf/turf";
-import { UNIT_DIS } from "../utils";
-
-const makeQuery2 = (level: number | string, parent: string) => {
-  return {
-    geojson: {
-      resource: "organisationUnits.geojson",
-      params: {
-        level,
-        parent,
-      },
-    },
-    sublevel: {
-      resource: "organisationUnits.json",
-      params: {
-        level,
-        fields: "id,name",
-        paging: false,
-        order: "shortName:desc",
-      },
-    },
-  };
-};
 
 export function useLoader() {
   const engine = useDataEngine();
@@ -163,12 +135,12 @@ export function useSqlView(indicator: Indicator) {
       if (numHeaders.length === 2) {
         numerators = fromPairs(numRows);
       } else if (numHeaders.length === 1) {
-        numerators = numRows[0][0];
+        numerators = numRows[0]?.[0];
       }
       if (denHeaders.length === 2) {
         denominators = fromPairs(denRows);
       } else if (numHeaders.length === 1) {
-        denominators = denRows[0][0];
+        denominators = denRows[0]?.[0];
       }
       if (other.other) {
         const {
@@ -191,7 +163,7 @@ export function useSqlView(indicator: Indicator) {
       };
     },
     {
-      // refetchInterval: 1000 * 10,
+      refetchInterval: 1000 * 10,
     }
   );
 }
