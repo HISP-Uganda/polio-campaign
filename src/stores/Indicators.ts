@@ -45,7 +45,7 @@ export const mainDashboard: { [key: string]: func } = {
       numerator: {
         sqlView: "nWziq9Yr0mA",
         parameters: {
-          dx: "K3QB60hWuQI",
+          dx: "OeItYwoZ3RK",
           parent,
           aoc,
         },
@@ -61,7 +61,7 @@ export const mainDashboard: { [key: string]: func } = {
       numerator: {
         sqlView: "Zd4pmzH9wr3",
         parameters: {
-          dx: "K3QB60hWuQI",
+          dx: "OeItYwoZ3RK",
           parent,
           part,
           aoc,
@@ -220,11 +220,11 @@ export const mainDashboard: { [key: string]: func } = {
       },
     };
   },
-  discarded: (parent, aoc) => {
+  discarded: (parent, aoc,dx) => {
     return {
       numerator: {
         sqlView: "XMsx2OmhqBa",
-        parameters: { parent, dx: "K3QB60hWuQI", aoc },
+        parameters: { parent, dx, aoc },
       },
       denominator: {
         sqlView: "ezh2YYPPeLN",
@@ -279,6 +279,27 @@ export const mainDashboard: { [key: string]: func } = {
       },
     };
   },
+  districtCoverage: (parent, part, aoc) => {
+    return {
+      numerator: {
+        sqlView: "zHnhTlh7Hbd",
+        parameters: {
+          dx: "Tk6RjMskA93",
+          part,
+          parent,
+          aoc,
+        },
+      },
+      denominator: {
+        sqlView: "afxvxjTLBTW",
+        parameters: {
+          dx: "NPtjF45ruWX",
+          part,
+          parent,
+        },
+      },
+    };
+  },
   districtsWastage: (parent, part, aoc) => {
     return {
       numerator: {
@@ -296,12 +317,12 @@ export const mainDashboard: { [key: string]: func } = {
       },
     };
   },
-  wastageSummary: (parent, aoc) => {
+  wastageSummary: (parent, aoc,dx) => {
     return {
       numerator: {
         sqlView: "PiiwBdbBm7Z",
         parameters: {
-          dx: "K3QB60hWuQI",
+          dx,
           parent,
           aoc,
         },
@@ -316,9 +337,13 @@ export const mainDashboard: { [key: string]: func } = {
     return {
       numerator: {
         sqlView: "XMsx2OmhqBa",
-        parameters: { parent, dx: "K3QB60hWuQI", aoc },
+        parameters: { parent, dx: "Sfw4l2p8IpA", aoc },
       },
       denominator: {
+        sqlView: "XMsx2OmhqBa",
+        parameters: { parent, dx: "UqHuKPGmatX", aoc },
+      },
+      other: {
         sqlView: "XMsx2OmhqBa",
         parameters: { parent, dx: "Tk6RjMskA93", aoc },
       },
@@ -359,8 +384,8 @@ export const mainDashboard: { [key: string]: func } = {
         parameters: { parent, dx: "gfIhVhuWVHr", aoc },
       },
       denominator: {
-        sqlView: "ezh2YYPPeLN",
-        parameters: {},
+        sqlView: "gffuV4VC4AC",
+        parameters: { parent, dx: "gfIhVhuWVHr", aoc, coc: "biWOWFj4zxB" },
       },
     };
   },
@@ -397,6 +422,30 @@ export const mainDashboard: { [key: string]: func } = {
       denominator: {
         sqlView: "ezh2YYPPeLN",
         parameters: {},
+      },
+    };
+  },
+  nationalTarget: (parent, dx) => {
+    return {
+      numerator: {
+        sqlView: "o0xJEcpE83O",
+        parameters: { parent, dx },
+      },
+      denominator: {
+        sqlView: "ezh2YYPPeLN",
+        parameters: {},
+      },
+    };
+  },
+  nationalCoverage: (parent, dx, aoc) => {
+    return {
+      numerator: {
+        sqlView: "XMsx2OmhqBa",
+        parameters: { parent, dx: "Tk6RjMskA93", aoc },
+      },
+      denominator: {
+        sqlView: "o0xJEcpE83O",
+        parameters: { parent, dx },
       },
     };
   },

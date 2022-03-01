@@ -10,15 +10,15 @@ import {
   processWastageBarData,
 } from "../stores/DataProcessors";
 import { mainDashboard } from "../stores/Indicators";
-import { $days, $store } from "../stores/Store";
+import { $days, $store,$realDays } from "../stores/Store";
 import { BarGraph } from "./BarGraph";
-import TableVisualization from "./TableVisualization";
 const MainGraphs: FC<{ yColor: string; bg: string }> = ({ yColor, bg }) => {
   const store = useStore($store);
   const days = useStore($days);
+  const realDays = useStore($realDays);
   const [tabIndex, setTabIndex] = useState<number>(0);
 
-  const increment = () => setTabIndex((s: number) => (s + 1) % 5);
+  const increment = () => setTabIndex((s: number) => (s + 1) % 4);
   useInterval(increment, 1000 * 60 * 2);
 
   return (
@@ -36,7 +36,6 @@ const MainGraphs: FC<{ yColor: string; bg: string }> = ({ yColor, bg }) => {
         <Tab fontSize="lg">Performance(Sub-level)</Tab>
         <Tab fontSize="lg">Wastage(Daily)</Tab>
         <Tab fontSize="lg">Wastage(Sub-level)</Tab>
-        <Tab fontSize="lg">Table</Tab>
       </TabList>
       <TabPanels h="100%" w="100%" flex={1}>
         <TabPanel p={0} m={0} h="100%" w="100%">
@@ -46,7 +45,7 @@ const MainGraphs: FC<{ yColor: string; bg: string }> = ({ yColor, bg }) => {
             yColor={yColor}
             indicator={mainDashboard.performance(store.selectedUnits, days)}
             processor={processBarData}
-            args={[store.days]}
+            args={[store.days, realDays]}
           />
         </TabPanel>
         <TabPanel h="100%" w="100%" p={0} m={0}>
@@ -60,7 +59,7 @@ const MainGraphs: FC<{ yColor: string; bg: string }> = ({ yColor, bg }) => {
               days
             )}
             processor={processSublevelPerformance}
-            args={[store.sublevels, store.days.length]}
+            args={[store.sublevels, realDays]}
           />
         </TabPanel>
         <TabPanel h="100%" w="100%" p={0} m={0}>
@@ -73,11 +72,12 @@ const MainGraphs: FC<{ yColor: string; bg: string }> = ({ yColor, bg }) => {
             args={[
               store.days,
               [
-                { id: "XRisIwF1Lk3", name: "Empty Vials" },
-                { id: "WC7dEdnHjfn", name: "Contamination" },
+                { id: "v4xXuxgLHYT", name: "Empty Vials" },
+                { id: "cyWMBEPiYgK", name: "Broken" },
+                { id: "vBO7uZ0qWkM", name: "Contamination" },
                 { id: "OevThMNdV8u", name: "Partial Use" },
-                { id: "uDHd6MAn9Ck", name: "VVM Color Change" },
-                { id: "q9Dmtmon8oX", name: "Other (Specify)" },
+                { id: "NNO02XzNa97", name: "VVM Color Change" },
+                { id: "dxHFnBP2dGe", name: "Other (Specify)" },
               ],
             ]}
           />
@@ -96,17 +96,14 @@ const MainGraphs: FC<{ yColor: string; bg: string }> = ({ yColor, bg }) => {
             args={[
               store.sublevels,
               [
-                { id: "WC7dEdnHjfn", name: "Contamination" },
-                { id: "OevThMNdV8u", name: "Partial use" },
-                { id: "uDHd6MAn9Ck", name: "VVM Color Change" },
-                { id: "q9Dmtmon8oX", name: "Other (Specify)" },
+                { id: "v4xXuxgLHYT", name: "Empty Vials" },
+                { id: "cyWMBEPiYgK", name: "Broken" },
+                { id: "vBO7uZ0qWkM", name: "Contamination" },
+                { id: "OevThMNdV8u", name: "Partial Use" },
+                { id: "NNO02XzNa97", name: "VVM Color Change" },
+                { id: "dxHFnBP2dGe", name: "Other (Specify)" },
               ],
             ]}
-          />
-        </TabPanel>
-        <TabPanel h="100%" w="100%" p={0} m={0}>
-          <TableVisualization
-            indicator={mainDashboard.table(store.selectedUnits, days)}
           />
         </TabPanel>
       </TabPanels>

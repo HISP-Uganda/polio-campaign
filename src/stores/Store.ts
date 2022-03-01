@@ -6,6 +6,7 @@ import {
   setDays,
   setGeojson,
   setLocations,
+  setMapCenter,
   setSelectedUnits,
   setSublevel,
   setSublevels,
@@ -34,6 +35,10 @@ export const $store = domain
       {
         label: "Day 3",
         value: "GyRRnHvTiD7",
+      },
+      {
+        label: "Day 4 (Mop up day)",
+        value: "u6Bex2ohisH",
       },
     ],
     sublevels: [],
@@ -67,12 +72,23 @@ export const $store = domain
   })
   .on(setSublevels, (state, sublevels) => {
     return { ...state, sublevels };
+  })
+  .on(setMapCenter, (state, mapCenter) => {
+    return { ...state, mapCenter };
   });
-  
+
 export const $days = $store.map((state) => {
   return state.days.map((d) => d.value).join("-");
 });
 
 export const $realDays = $store.map((state) => {
+  const day4 = state.days.find(({ value }) => value === "u6Bex2ohisH");
+  if (day4 && state.days.length > 1) {
+    return state.days.length - 1;
+  }
+  if (day4 && state.days.length === 1) {
+    return 1;
+  }
+
   return state.days.length;
 });

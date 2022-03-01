@@ -1,19 +1,23 @@
 import Plot from "react-plotly.js";
-import { Box, Spinner, Flex, Text,Stack } from "@chakra-ui/react";
+import { Box, Spinner, Flex, Text, Stack } from "@chakra-ui/react";
 import { useSqlView } from "../stores/Queries";
 import { Indicator } from "../interfaces";
 import { FC } from "react";
 import { Position } from "@turf/turf";
-import { $store } from "../stores/Store";
+import { $realDays, $store } from "../stores/Store";
 import { useStore } from "effector-react";
+import { isArray } from "lodash";
 const Map: FC<{
   metadata: any;
   indicator: Indicator;
   center: Position;
-  title:string;
-}> = ({ metadata, indicator, center,title }) => {
+  title: string;
+  processor: (...data: any[]) => any;
+  otherArgs?: any[];
+}> = ({ metadata, indicator, center, title, processor, otherArgs = [] }) => {
   const { isLoading, isError, isSuccess, error, data } = useSqlView(indicator);
   const store = useStore($store);
+  const realDays = useStore($realDays);
   return (
     <Stack h="100%" spacing={0}>
       {isLoading && <Spinner />}
@@ -43,12 +47,19 @@ const Map: FC<{
               data={[
                 {
                   type: "choroplethmapbox",
+                  hoverformat: ".2r",
                   locations: metadata.organisationUnits.map(
                     (ou: { id: string; name: string }) => ou.name
                   ),
-                  z: metadata.organisationUnits.map(
-                    ({ id }) => data.numerators[id] || 0
-                  ),
+                  z: metadata.organisationUnits.map(({ id }) => {
+                    return processor(
+                      data.numerators[id] || 0,
+                      isArray(data.denominators)
+                        ? data.denominators[0][0]
+                        : data.denominators[id],
+                      ...otherArgs
+                    );
+                  }),
                   featureidkey: "properties.name",
                   geojson: metadata.geojson,
                 } as any,

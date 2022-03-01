@@ -4,13 +4,27 @@ import { Indicator } from "../interfaces";
 import { useSqlView } from "../stores/Queries";
 import { formatter } from "../utils";
 
+type func = (value: number) => string;
+
 const ST: FC<{
   data: any;
   title: string;
   postfix?: string;
   direction?: "column" | "row";
   tooltip: string;
-}> = ({ title, data, postfix, direction = "column", tooltip = "" }) => {
+  color?: string;
+  otherColor?: func;
+  hasLabel?: boolean;
+}> = ({
+  title,
+  data,
+  postfix,
+  direction = "column",
+  tooltip = "",
+  color,
+  otherColor,
+  hasLabel,
+}) => {
   return (
     <Stack
       spacing={direction === "column" ? 0 : "10px"}
@@ -20,18 +34,30 @@ const ST: FC<{
       justifyItems="center"
       direction={direction}
     >
-      <Tooltip label={`${tooltip} ${Number(data)}`} hasArrow placement="top">
-        <Text
-          textTransform="uppercase"
-          fontWeight="medium"
-          fontSize="1.2vw"
-          isTruncated
-        >
-          {title}
-        </Text>
-      </Tooltip>
+      {hasLabel && (
+        <Tooltip label={`${tooltip} ${Number(data)}`} hasArrow placement="top">
+          <Text
+            textTransform="uppercase"
+            fontWeight="medium"
+            fontSize="2.0vh"
+            isTruncated
+          >
+            {title}
+          </Text>
+        </Tooltip>
+      )}
 
-      <Text fontSize={"2.0vw"} color="red" fontWeight="bold">
+      <Text
+        fontSize={"2.5vh"}
+        color={
+          otherColor !== undefined
+            ? otherColor(Number(data))
+            : !!color
+            ? color
+            : "red"
+        }
+        fontWeight="bold"
+      >
         {formatter.format(Number(data))}
         {postfix}
       </Text>
@@ -43,20 +69,24 @@ const SingleValue: FC<{
   indicator: Indicator;
   title: string;
   postfix?: string;
-  hasProgress?: boolean;
   direction?: "column" | "row";
   processor: (...data: any[]) => any;
   tooltip?: string;
   otherArgs?: any[];
+  color?: string;
+  otherColor?: func;
+  hasLabel?: boolean;
 }> = ({
   indicator,
   title,
   postfix = "",
-  hasProgress = false,
   direction = "column",
   tooltip = "",
   processor,
+  color,
   otherArgs = [],
+  otherColor,
+  hasLabel = true,
 }) => {
   const { isLoading, isError, isSuccess, error, data } = useSqlView(indicator);
   return (
@@ -64,6 +94,9 @@ const SingleValue: FC<{
       {isLoading && <Spinner />}
       {isSuccess && (
         <ST
+          hasLabel={hasLabel}
+          color={color}
+          otherColor={otherColor}
           tooltip={tooltip}
           direction={direction}
           title={title}

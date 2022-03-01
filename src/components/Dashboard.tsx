@@ -11,9 +11,11 @@ import {
   Spacer,
   Stack,
   Text,
-  useBreakpointValue, useColorModeValue,
-  VStack
+  useBreakpointValue,
+  useColorModeValue,
+  VStack,
 } from "@chakra-ui/react";
+import Marquee from "react-marquee-slider";
 import { Select } from "chakra-react-select";
 import { useStore } from "effector-react";
 import { HTMLMotionProps, motion } from "framer-motion";
@@ -24,8 +26,17 @@ import {
   calculateReportingRates,
   calculateStockIndicators,
   computeStaffTarget,
-  computeWastage, processCoverageValue, processSingleValue,
-  processWastageData
+  computeVaccinationTarget,
+  computeWastage,
+  nationalCoverageProcessor,
+  processCoverageValue,
+  processMapCoverage,
+  processMapSingleValue,
+  processSingleValue,
+  processStaffingValue,
+  processStaffReported,
+  processWastageData,
+  targetProcessor,
 } from "../stores/DataProcessors";
 import { setDays } from "../stores/Events";
 import { mainDashboard } from "../stores/Indicators";
@@ -37,6 +48,10 @@ import PieChart from "./PieChart";
 import SimpleSingleValue from "./SimpleSingleValue";
 import SingleValue from "./SingleValue";
 import Speed from "./Speed";
+import Map from "./Map";
+import { findColor, findWastageColor } from "../utils";
+import { NationalCoverage } from "./NationalCoverage";
+import { Unusable } from "./Unusable";
 
 type Merge<P, T> = Omit<P, keyof T> & T;
 
@@ -45,165 +60,11 @@ type MotionBoxProps = Merge<HTMLChakraProps<"div">, HTMLMotionProps<"div">>;
 export const MotionBox: React.FC<MotionBoxProps> = motion(chakra.div);
 
 const Dashboard = () => {
-  const [current, setCurrent] = useState<number>(0);
   const [index, setIndex] = useState<number>(0);
+  const [current, setCurrent] = useState<number>(0);
   const store = useStore($store);
   const days = useStore($days);
   const realDays = useStore($realDays);
-
-  const slides = [
-    <MotionBox
-      key={1}
-      initial={{
-        opacity: 0,
-        translateY: -50,
-        translateX: -50,
-      }}
-      animate={{
-        opacity: 1,
-        translateY: 0,
-        translateX: 0,
-      }}
-      transition={{ duration: 0.4 }}
-    >
-      <HStack h="100%" w="100%">
-        <Text
-          fontSize={"1.4vw"}
-          fontWeight="bold"
-          textTransform="uppercase"
-          bg="black"
-          color="white"
-        >
-          Reason for unusable
-        </Text>
-        <SingleValue
-          processor={processSingleValue}
-          direction="row"
-          indicator={mainDashboard.staffing(
-            store.selectedUnits,
-            "K3QB60hWuQI",
-            days,
-            "XRisIwF1Lk3"
-          )}
-          title="Empty Vials"
-        />
-        <SingleValue
-          processor={processSingleValue}
-          direction="row"
-          indicator={mainDashboard.staffing(
-            store.selectedUnits,
-            "K3QB60hWuQI",
-            days,
-            "OevThMNdV8u"
-          )}
-          title="Partial Use"
-        />
-        <SingleValue
-          processor={processSingleValue}
-          direction="row"
-          indicator={mainDashboard.staffing(
-            store.selectedUnits,
-            "K3QB60hWuQI",
-            days,
-            "WC7dEdnHjfn"
-          )}
-          title="Contamination"
-        />
-        <SingleValue
-          processor={calculateReportingRates}
-          direction="row"
-          indicator={mainDashboard.staffing(
-            store.selectedUnits,
-            "K3QB60hWuQI",
-            days,
-            "uDHd6MAn9Ck"
-          )}
-          title="VVM Color Change"
-        />
-        <SingleValue
-          processor={calculateReportingRates}
-          direction="row"
-          indicator={mainDashboard.staffing(
-            store.selectedUnits,
-            "K3QB60hWuQI",
-            days,
-            "q9Dmtmon8oX"
-          )}
-          title="Others Specify"
-        />
-      </HStack>
-    </MotionBox>,
-    <MotionBox
-      key={1}
-      initial={{
-        opacity: 0,
-        translateY: -50,
-        translateX: -50,
-      }}
-      animate={{
-        opacity: 1,
-        translateY: 0,
-        translateX: 0,
-      }}
-      transition={{ duration: 0.4 }}
-    >
-      <HStack h="100%" w="100%">
-        <Text
-          fontSize={"1.4vw"}
-          fontWeight="bold"
-          textTransform="uppercase"
-          bg="black"
-          color="white"
-        >
-          Staff Breakdown
-        </Text>
-        <SingleValue
-          processor={processSingleValue}
-          indicator={mainDashboard.staffing(
-            store.selectedUnits,
-            "gfIhVhuWVHr",
-            days,
-            "aEo8TC2ZwD3"
-          )}
-          direction="row"
-          title="H/Ws"
-        />
-        <SingleValue
-          processor={processSingleValue}
-          indicator={mainDashboard.staffing(
-            store.selectedUnits,
-            "gfIhVhuWVHr",
-            days,
-            "x2B5r3OQCdA"
-          )}
-          direction="row"
-          title="Mobilizers"
-        />
-        <SingleValue
-          processor={processSingleValue}
-          indicator={mainDashboard.staffing(
-            store.selectedUnits,
-            "gfIhVhuWVHr",
-            days,
-            "CXvPyuoP80i"
-          )}
-          direction="row"
-          title="VHTs"
-        />
-        <SingleValue
-          processor={processSingleValue}
-          indicator={mainDashboard.staffing(
-            store.selectedUnits,
-            "gfIhVhuWVHr",
-            days,
-            "biWOWFj4zxB"
-          )}
-          direction="row"
-          title="PS"
-        />
-      </HStack>
-    </MotionBox>,
-  ];
 
   const handle = useFullScreenHandle();
   const templateColumns = useBreakpointValue({
@@ -217,11 +78,34 @@ const Dashboard = () => {
   const bg = useColorModeValue("white", "#2D3748");
   const realBg = useColorModeValue("gray.300", "gray.900");
   const yColor = useColorModeValue("black", "white");
-  const increment = () => setCurrent((s: number) => (s + 1) % slides.length);
   const maps = [
+    <MotionBox
+      key="coverage"
+      h="100%"
+      w="100%"
+      initial={{
+        opacity: 0,
+      }}
+      animate={{
+        opacity: 1,
+      }}
+      transition={{ duration: 1 }}
+    >
+      <MapVisualization
+        indicator={mainDashboard.districtCoverage(
+          store.selectedUnits,
+          store.currentLevel + 1,
+          days
+        )}
+        processor={processMapCoverage}
+        otherArgs={[realDays]}
+        title="Vaccination Coverage"
+      />
+    </MotionBox>,
     <MotionBox
       key="performance"
       h="100%"
+      w="100%"
       initial={{
         opacity: 0,
       }}
@@ -236,10 +120,12 @@ const Dashboard = () => {
           store.currentLevel + 1,
           days
         )}
+        processor={processMapSingleValue}
         title="Total vaccinated"
       />
     </MotionBox>,
     <MotionBox
+      w="100%"
       key="wastage"
       h="100%"
       initial={{
@@ -256,14 +142,121 @@ const Dashboard = () => {
           store.currentLevel + 1,
           days
         )}
+        processor={processMapSingleValue}
         title="Wastage summary"
       />
     </MotionBox>,
   ];
+  const wastages = [
+    <MotionBox
+      h="100%"
+      w="100%"
+      key="at_site"
+      initial={{
+        opacity: 0,
+      }}
+      animate={{
+        opacity: 1,
+      }}
+      transition={{ duration: 1 }}
+    >
+      <Stack w="100%" h="100%" spacing={0}>
+        <Flex
+          alignItems="center"
+          bg="gray.200"
+          h="30px"
+          alignContent="center"
+          justifyItems="center"
+        >
+          <HStack
+            pl="25px"
+            w="100%"
+            h="20px"
+            textTransform="uppercase"
+            fontWeight="bold"
+            fontSize="0.8vw"
+            color="gray.500"
+            isTruncated
+          >
+            <Text>Unusable Vials(Site)</Text>
+            <Unusable
+              processor={calculateStockIndicators}
+              indicator={mainDashboard.discarded(
+                store.selectedUnits,
+                days,
+                "OeItYwoZ3RK"
+              )}
+            />
+          </HStack>
+        </Flex>
+        <PieChart
+          processor={processWastageData}
+          indicator={mainDashboard.wastageSummary(
+            store.selectedUnits,
+            days,
+            "OeItYwoZ3RK"
+          )}
+        />
+      </Stack>
+    </MotionBox>,
+    <MotionBox
+      h="100%"
+      w="100%"
+      key="at_store"
+      initial={{
+        opacity: 0,
+      }}
+      animate={{
+        opacity: 1,
+      }}
+      transition={{ duration: 1 }}
+    >
+      <Stack w="100%" h="100%" spacing={0}>
+        <Flex
+          alignItems="center"
+          bg="gray.200"
+          h="30px"
+          alignContent="center"
+          justifyItems="center"
+        >
+          <HStack
+            pl="25px"
+            w="100%"
+            h="20px"
+            textTransform="uppercase"
+            fontWeight="bold"
+            fontSize="0.8vw"
+            color="gray.500"
+            isTruncated
+          >
+            <Text>Vials Returned to Store</Text>
+            <Unusable
+              processor={calculateStockIndicators}
+              indicator={mainDashboard.discarded(
+                store.selectedUnits,
+                days,
+                "XXRlX2cJWuT"
+              )}
+            />
+          </HStack>
+        </Flex>
+        <PieChart
+          processor={processWastageData}
+          indicator={mainDashboard.wastageSummary(
+            store.selectedUnits,
+            days,
+            "XXRlX2cJWuT"
+          )}
+        />
+      </Stack>
+    </MotionBox>,
+  ];
 
   const incrementMaps = () => setIndex((s: number) => (s + 1) % maps.length);
-  useInterval(increment, 1000 * 10);
+  const incrementCurrent = () =>
+    setCurrent((s: number) => (s + 1) % wastages.length);
   useInterval(incrementMaps, 1000 * 30);
+  useInterval(incrementCurrent, 1000 * 30);
   return (
     <FullScreen handle={handle}>
       <Box bg={realBg} p="5px">
@@ -274,38 +267,37 @@ const Dashboard = () => {
             boxSize="48px"
           />
           <Button>OPV Campaign</Button>
-          {/* <Button>Routine Immunization</Button> */}
           <Spacer />
-          {/* <Button onClick={toggleColorMode} ml="400px">
-            Toggle {colorMode === "light" ? "Dark" : "Light"}
-          </Button> */}
           {handle.active ? (
             <Button onClick={handle.exit}>Exit fullscreen</Button>
           ) : (
             <Button onClick={handle.enter}>Enter fullscreen</Button>
           )}
-          <Box w="370px" bg="white">
+          <Box w="530px" bg="white">
             <Select
               value={store.days}
               hideSelectedOptions={false}
               selectedOptionStyle="check"
               onChange={(value: any, actions: any) => {
-                console.log(actions);
                 setDays(value);
               }}
               isMulti
               options={[
                 {
                   label: "Day 1",
-                  value: "10144",
+                  value: "LnW4HiRwsGV",
                 },
                 {
                   label: "Day 2",
-                  value: "10145",
+                  value: "vMnKiXj54yp",
                 },
                 {
                   label: "Day 3",
-                  value: "10146",
+                  value: "GyRRnHvTiD7",
+                },
+                {
+                  label: "Day 4 (Mop up day)",
+                  value: "u6Bex2ohisH",
                 },
               ]}
             />
@@ -331,8 +323,62 @@ const Dashboard = () => {
               gap={1}
               h="100%"
             >
-              <GridItem bg={bg} colSpan={4}>
-                <Stack direction="column" spacing={0}>
+              <GridItem colSpan={1} bg={bg} h="100%">
+                <Grid h="100%" bg={bg}>
+                  <GridItem>
+                    <Stack spacing={0} h="100%" w="100%">
+                      <Flex
+                        alignItems="center"
+                        bg="gray.200"
+                        h="30px"
+                        alignContent="center"
+                        justifyItems="center"
+                      >
+                        <Text
+                          pl="25px"
+                          h="20px"
+                          textTransform="uppercase"
+                          fontWeight="bold"
+                          fontSize="0.8vw"
+                          color="gray.500"
+                          isTruncated
+                        >
+                          National Targets
+                        </Text>
+                      </Flex>
+                      <VStack
+                        justifyItems="space-around"
+                        justifyContent="space-around"
+                        w="100%"
+                        h="100%"
+                        flex={1}
+                        spacing={0}
+                      >
+                        <SingleValue
+                          hasLabel={false}
+                          processor={targetProcessor}
+                          indicator={mainDashboard.nationalTarget(
+                            store.selectedUnits,
+                            "Y8gfKtQJ9LV"
+                          )}
+                          title="Target"
+                          color="black"
+                        />
+                        <NationalCoverage
+                          indicator={mainDashboard.nationalCoverage(
+                            store.selectedUnits,
+                            "Y8gfKtQJ9LV",
+                            days
+                          )}
+                          processor={nationalCoverageProcessor}
+                        />
+                      </VStack>
+                    </Stack>
+                  </GridItem>
+                </Grid>
+              </GridItem>
+              <GridItem bg={bg} colSpan={3} h="100%">
+                <Stack direction="column" spacing={0} h="100%">
                   <Flex
                     alignItems="center"
                     bg="gray.200"
@@ -363,6 +409,7 @@ const Dashboard = () => {
                       processor={processSingleValue}
                       indicator={mainDashboard.posts(store.selectedUnits, days)}
                       title="Sub-counties"
+                      color="black"
                     />
                     <SingleValue
                       processor={processSingleValue}
@@ -370,17 +417,20 @@ const Dashboard = () => {
                         store.selectedUnits,
                         days
                       )}
+                      color="darkgreen"
                       title="Reported"
                     />
                     <SingleValue
                       processor={calculateReportingRates}
                       indicator={mainDashboard.rates(store.selectedUnits, days)}
-                      title="Reporting Rates"
+                      title="Rates"
                       postfix="%"
+                      otherColor={findColor}
                     />
                   </HStack>
                 </Stack>
               </GridItem>
+
               <GridItem colSpan={2} bg={bg} h="100%">
                 <Grid h="100%" bg={bg}>
                   <GridItem>
@@ -468,9 +518,11 @@ const Dashboard = () => {
                     flex={1}
                   >
                     <SingleValue
-                      processor={processSingleValue}
+                      processor={computeVaccinationTarget}
                       indicator={mainDashboard.target(store.selectedUnits)}
-                      title="Target"
+                      title="District Target"
+                      color="black"
+                      otherArgs={[realDays]}
                     />
                     <SingleValue
                       processor={processSingleValue}
@@ -478,6 +530,7 @@ const Dashboard = () => {
                         store.selectedUnits,
                         days
                       )}
+                      color="darkgreen"
                       title="Vaccinated"
                     />
                     <SingleValue
@@ -486,6 +539,7 @@ const Dashboard = () => {
                         store.selectedUnits,
                         days
                       )}
+                      color="orange.300"
                       title="Zero Dose"
                     />
                     <SingleValue
@@ -495,8 +549,9 @@ const Dashboard = () => {
                         days
                       )}
                       postfix="%"
-                      hasProgress
                       title="Coverage"
+                      otherColor={findColor}
+                      otherArgs={[realDays]}
                     />
                     <Box w="350px">
                       <Speed
@@ -506,6 +561,7 @@ const Dashboard = () => {
                           days
                         )}
                         title="Vaccination Coverage"
+                        otherArgs={[realDays]}
                       />
                     </Box>
                     <SingleValue
@@ -515,8 +571,9 @@ const Dashboard = () => {
                         days
                       )}
                       postfix="%"
-                      hasProgress
                       title="Wastage"
+                      otherColor={findWastageColor}
+                      otherArgs={[realDays]}
                     />
                   </Flex>
                 </Stack>
@@ -580,18 +637,21 @@ const Dashboard = () => {
                       otherArgs={[realDays]}
                       indicator={mainDashboard.staffTarget(store.selectedUnits)}
                       title="Staff Planned"
+                      color="black"
                     />
                     <SingleValue
-                      processor={processSingleValue}
+                      processor={processStaffReported}
                       indicator={mainDashboard.staffReported(
                         store.selectedUnits,
                         days
                       )}
                       title="Staff Available"
+                      color="darkgreen"
+                      otherArgs={[realDays]}
                     />
                     <HStack w="100%" alignContent="space-around">
                       <SimpleSingleValue
-                        processor={processSingleValue}
+                        processor={processStaffingValue}
                         indicator={mainDashboard.staffing(
                           store.selectedUnits,
                           "gfIhVhuWVHr",
@@ -599,9 +659,10 @@ const Dashboard = () => {
                           "aEo8TC2ZwD3"
                         )}
                         title="H/Ws"
+                        otherArgs={[realDays]}
                       />
                       <SimpleSingleValue
-                        processor={processSingleValue}
+                        processor={processStaffingValue}
                         indicator={mainDashboard.staffing(
                           store.selectedUnits,
                           "gfIhVhuWVHr",
@@ -609,9 +670,10 @@ const Dashboard = () => {
                           "x2B5r3OQCdA"
                         )}
                         title="Mobilizers"
+                        otherArgs={[realDays]}
                       />
                       <SimpleSingleValue
-                        processor={processSingleValue}
+                        processor={processStaffingValue}
                         indicator={mainDashboard.staffing(
                           store.selectedUnits,
                           "gfIhVhuWVHr",
@@ -619,9 +681,10 @@ const Dashboard = () => {
                           "CXvPyuoP80i"
                         )}
                         title="VHTs"
+                        otherArgs={[realDays]}
                       />
                       <SimpleSingleValue
-                        processor={processSingleValue}
+                        processor={processStaffingValue}
                         indicator={mainDashboard.staffing(
                           store.selectedUnits,
                           "gfIhVhuWVHr",
@@ -629,24 +692,29 @@ const Dashboard = () => {
                           "biWOWFj4zxB"
                         )}
                         title="PS"
+                        otherArgs={[realDays]}
                       />
                     </HStack>
                     <SingleValue
-                      processor={processSingleValue}
+                      processor={computeStaffTarget}
                       indicator={mainDashboard.staffTeamTarget(
                         store.selectedUnits
                       )}
                       title="Target Teams"
                       otherArgs={[realDays]}
+                      color="black"
                     />
                     <SingleValue
-                      processor={processSingleValue}
+                      processor={processStaffingValue}
                       indicator={mainDashboard.staffing(
                         store.selectedUnits,
+                        "gfIhVhuWVHr",
                         days,
                         "aEo8TC2ZwD3"
                       )}
                       title="Reported Teams"
+                      color="darkgreen"
+                      otherArgs={[realDays]}
                     />
                   </VStack>
                 </Stack>
@@ -694,26 +762,27 @@ const Dashboard = () => {
                       >
                         <HStack
                           w="100%"
-                          // bg="yellow"
                           justifyContent="space-around"
                           alignItems="center"
                           justifyItems="center"
                         >
+                          <SingleValue
+                            processor={processSingleValue}
+                            indicator={mainDashboard.nationalTarget(
+                              store.selectedUnits,
+                              "PsUDvInU6eG"
+                            )}
+                            color="black"
+                            title="Allocated"
+                          />
                           <SingleValue
                             processor={calculateStockIndicators}
                             indicator={mainDashboard.issued(
                               store.selectedUnits,
                               days
                             )}
+                            color="orange.300"
                             title="Received"
-                          />
-                          <SingleValue
-                            processor={calculateStockIndicators}
-                            indicator={mainDashboard.returned(
-                              store.selectedUnits,
-                              days
-                            )}
-                            title="Returned"
                           />
                         </HStack>
                         <HStack
@@ -724,54 +793,37 @@ const Dashboard = () => {
                         >
                           <SingleValue
                             processor={calculateStockIndicators}
+                            indicator={mainDashboard.returned(
+                              store.selectedUnits,
+                              days
+                            )}
+                            title="Returned"
+                            color="darkgreen"
+                          />
+                          <SingleValue
+                            processor={calculateStockIndicators}
                             indicator={mainDashboard.available(
                               store.selectedUnits,
                               days
                             )}
                             tooltip="Physical Balance"
                             title="Available"
+                            color="black"
                           />
-                          <SingleValue
+                          {/* <SingleValue
                             processor={calculateStockIndicators}
                             indicator={mainDashboard.discarded(
                               store.selectedUnits,
                               days
                             )}
                             title="Unusable"
-                          />
+                          /> */}
                         </HStack>
                       </VStack>
                     </Stack>
                   </GridItem>
                   <GridItem rowSpan={2} bg={bg}>
-                    <Stack w="100%" h="100%" spacing={0}>
-                      <Flex
-                        alignItems="center"
-                        bg="gray.200"
-                        h="30px"
-                        alignContent="center"
-                        justifyItems="center"
-                      >
-                        <Text
-                          pl="25px"
-                          h="20px"
-                          textTransform="uppercase"
-                          fontWeight="bold"
-                          fontSize="0.8vw"
-                          color="gray.500"
-                          isTruncated
-                        >
-                          Unusable Vials
-                        </Text>
-                      </Flex>
-                      <PieChart
-                        processor={processWastageData}
-                        indicator={mainDashboard.wastageSummary(
-                          store.selectedUnits,
-                          days
-                        )}
-                      />
-                    </Stack>
+                    {wastages[current]}
                   </GridItem>
                 </Grid>
               </GridItem>
@@ -791,15 +843,120 @@ const Dashboard = () => {
                   h="auto"
                 />
               </Box>
-              <Flex
-                flex={1}
-                w="100%"
-                h="100%"
-                alignItems="center"
-                justifyContent="center"
-              >
-                {slides[current]}
-              </Flex>
+              <HStack flex={1} spacing="10px">
+                <Marquee
+                  velocity={36}
+                  direction="rtl"
+                  onFinish={() => {
+                    console.log("Finished");
+                  }}
+                  onInit={() => console.log("Initialized")}
+                  resetAfterTries={200}
+                  scatterRandomly={false}
+                >
+                  {[
+                    {
+                      processor: processSingleValue,
+                      title: "Empty Vials",
+                      indicator: mainDashboard.staffing(
+                        store.selectedUnits,
+                        "K3QB60hWuQI",
+                        days,
+                        "XRisIwF1Lk3"
+                      ),
+                    },
+                    {
+                      processor: processSingleValue,
+                      title: "Partial Use",
+                      indicator: mainDashboard.staffing(
+                        store.selectedUnits,
+                        "K3QB60hWuQI",
+                        days,
+                        "OevThMNdV8u"
+                      ),
+                    },
+                    {
+                      processor: processSingleValue,
+                      title: "Contamination",
+                      indicator: mainDashboard.staffing(
+                        store.selectedUnits,
+                        "K3QB60hWuQI",
+                        days,
+                        "WC7dEdnHjfn"
+                      ),
+                    },
+                    {
+                      processor: calculateReportingRates,
+                      title: "VVM Color Change",
+                      indicator: mainDashboard.staffing(
+                        store.selectedUnits,
+                        "K3QB60hWuQI",
+                        days,
+                        "uDHd6MAn9Ck"
+                      ),
+                    },
+                    {
+                      processor: calculateReportingRates,
+                      title: "Others Specify",
+                      indicator: mainDashboard.staffing(
+                        store.selectedUnits,
+                        "K3QB60hWuQI",
+                        days,
+                        "q9Dmtmon8oX"
+                      ),
+                    },
+                    {
+                      processor: processSingleValue,
+                      title: "Health Workers",
+                      indicator: mainDashboard.staffing(
+                        store.selectedUnits,
+                        "gfIhVhuWVHr",
+                        days,
+                        "aEo8TC2ZwD3"
+                      ),
+                    },
+                    {
+                      processor: processSingleValue,
+                      indicator: mainDashboard.staffing(
+                        store.selectedUnits,
+                        "gfIhVhuWVHr",
+                        days,
+                        "x2B5r3OQCdA"
+                      ),
+                      title: "Mobilizers",
+                    },
+                    {
+                      processor: processSingleValue,
+                      indicator: mainDashboard.staffing(
+                        store.selectedUnits,
+                        "gfIhVhuWVHr",
+                        days,
+                        "CXvPyuoP80i"
+                      ),
+                      title: "Village Health Teams",
+                    },
+                    {
+                      processor: processSingleValue,
+                      indicator: mainDashboard.staffing(
+                        store.selectedUnits,
+                        "gfIhVhuWVHr",
+                        days,
+                        "biWOWFj4zxB"
+                      ),
+                      title: "Parish Supervisors	",
+                    },
+                  ].map(({ processor, title, indicator }) => (
+                    <HStack minW="100px" mx="20px" key={title}>
+                      <SingleValue
+                        processor={processor}
+                        direction="row"
+                        indicator={indicator}
+                        title={title}
+                      />
+                    </HStack>
+                  ))}
+                </Marquee>
+              </HStack>
               <Box>
                 <Image
                   src="https://raw.githubusercontent.com/HISP-Uganda/covid-dashboard/master/src/images/logo.png"

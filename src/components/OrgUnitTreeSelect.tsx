@@ -12,6 +12,7 @@ import {
   setZoom,
 } from "../stores/Events";
 import { $store } from "../stores/Store";
+import { UNIT_DIS, ZOOMS } from "../utils";
 
 const query = (parent: any) => {
   return {
@@ -64,23 +65,11 @@ const OrgUnitTreeSelect = () => {
   };
 
   const onOrgUnitChange = async (value: string) => {
-    const unitObj = {
-      1: 3,
-      2: 3,
-      3: 4,
-      4: 4,
-    };
-    const zooms = {
-      1: 6.0,
-      2: 7.5,
-      3: 9.0,
-      4: 9.0,
-    };
     const unit = units.find((u: any) => u.id === value);
-    setCurrentLevel(unitObj[unit.level] || 3);
+    setCurrentLevel(UNIT_DIS[unit.level] || 3);
     setSelectedUnits(value);
     setSublevel(unit.level + 2);
-    setZoom(zooms[unit.level] || 6.0);
+    setZoom(ZOOMS[unit.level] || 6.0);
 
     const {
       response: { organisationUnits },

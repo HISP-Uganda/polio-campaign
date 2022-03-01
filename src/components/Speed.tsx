@@ -8,8 +8,10 @@ import { formatter } from "../utils";
 const Speed: FC<{
   indicator: Indicator;
   title: string;
+  otherArgs?: any[];
   processor: (...data: any[]) => any;
-}> = ({ indicator, title, processor }) => {
+  height?: number;
+}> = ({ indicator, title, processor, otherArgs, height = 60 }) => {
   const bg = useColorModeValue("white", "#2D3748");
   const { isLoading, isError, isSuccess, error, data } = useSqlView(indicator);
   return (
@@ -19,25 +21,25 @@ const Speed: FC<{
         <>
           <Text pl="15px">
             {title}
-            &nbsp; ({formatter.format(processor(data))}
+            &nbsp; ({formatter.format(processor(data, ...otherArgs))}
             %)
           </Text>
           <Plot
             data={[
               {
                 domain: { x: [0, 1], y: [0, 1] },
-                value: processor(data),
+                value: processor(data, ...otherArgs),
                 type: "indicator",
                 mode: "gauge",
                 gauge: {
                   shape: "bullet",
                   axis: { range: [null, 100] },
-                  bar: { color: "darkblue", thickness: 0.4 },
+                  bar: { color: "#ffffbf", thickness: 0.4 },
                   steps: [
-                    { range: [0, 50], color: "red" },
-                    { range: [50, 80], color: "yellow" },
-                    { range: [80, 90], color: "limegreen" },
-                    { range: [90, 100], color: "darkgreen" },
+                    { range: [0, 50], color: "#d7191c" },
+                    { range: [50, 80], color: "#fdae61" },
+                    { range: [80, 95], color: "#a6d96a" },
+                    { range: [95, 100], color: "#1a9641" },
                   ],
                   // threshold: {
                   //   line: { color: "red", width: 4 },
@@ -51,8 +53,8 @@ const Speed: FC<{
               plot_bgcolor: bg,
               paper_bgcolor: bg,
               autosize: true,
-              height: 60,
-              margin: { t: 5, b: 21, l: 15, r: 0 },
+              height,
+              margin: { t: 5, b: 21, l: 15, r: 20 },
             }}
             style={{ width: "100%", height: "100%" }}
             config={{ displayModeBar: false, responsive: true }}
@@ -60,7 +62,7 @@ const Speed: FC<{
         </>
       )}
 
-      {isError && <pre>{JSON.stringify(error)}</pre>}
+      {isError && <pre>{error.message}</pre>}
     </Stack>
   );
 };

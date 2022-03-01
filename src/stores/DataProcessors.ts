@@ -1,4 +1,6 @@
-export function processBarData(data: any, dx: any[]): any[] {
+import { COLORS } from "../utils";
+
+export function processBarData(data: any, dx: any[], days: number): any[] {
   const x = dx.map((d: any) => {
     return d.label;
   });
@@ -9,17 +11,34 @@ export function processBarData(data: any, dx: any[]): any[] {
     y: dx.map(({ value }: any) => data.numerators[value] || 0),
     type: "bar",
     textposition: "auto",
-    texttemplate: "%{y}",
+    texttemplate: "%{y:.2s}",
+    textfont: {
+      color: "black",
+    },
+    marker: {
+      color: "#1a9641",
+    },
     // hoverinfo: "none",
   };
 
   const target = {
     name: "Target",
     x,
-    y: dx.map(() => data.denominators / 3),
+    y: dx.map(({ value }) => {
+      if (value === "u6Bex2ohisH") {
+        return 0;
+      }
+      return data.denominators / 3;
+    }),
     type: "bar",
     textposition: "auto",
-    texttemplate: "%{y}",
+    texttemplate: "%{y:.2s}",
+    textfont: {
+      color: "black",
+    },
+    marker: {
+      color: "#fdae61",
+    },
     // hoverinfo: "none",
   };
   return [vaccinated, target];
@@ -32,7 +51,7 @@ export function processWastageBarData(
   const x = dx.map((d: any) => {
     return d.label;
   });
-  return others.map(({ id, name }) => {
+  return others.map(({ id, name }, index: number) => {
     return {
       name,
       x,
@@ -47,7 +66,10 @@ export function processWastageBarData(
       }),
       type: "bar",
       textposition: "auto",
-      texttemplate: "%{y}",
+      texttemplate: "%{y:.2s}",
+      marker: {
+        color: COLORS[index],
+      },
       // hoverinfo: "none",
     };
   });
@@ -63,13 +85,87 @@ export const processSingleValue = (data: any) => {
   }
   return 0;
 };
-export const processCoverageValue = (data: any) => {
+
+export const targetProcessor = (data: any) => {
   if (
     Number(data.numerators) !== NaN &&
     Number(data.denominators) !== NaN &&
     Number(data.denominators) !== 0
   ) {
-    return (Number(data.numerators) * 100) / Number(data.denominators);
+    return Number(data.numerators) / Number(data.denominators);
+  }
+  return 0;
+};
+export const nationalCoverageProcessor = (data: any) => {
+  if (
+    Number(data.numerators) !== NaN &&
+    Number(data.denominators) !== NaN &&
+    Number(data.denominators) !== 0
+  ) {
+    return (100 * Number(data.numerators)) / Number(data.denominators);
+  }
+  return 0;
+};
+export const processStaffingValue = (data: any, days: number) => {
+  if (
+    Number(data.numerators) !== NaN &&
+    Number(data.denominators) !== NaN &&
+    Number(data.denominators) !== 0
+  ) {
+    return Math.round(
+      Number(data.numerators) / Number(data.denominators) / days
+    );
+  }
+  return 0;
+};
+
+export const processStaffReported = (data: any, days: number) => {
+  if (
+    Number(data.numerators) !== NaN &&
+    Number(data.denominators) !== NaN &&
+    Number(data.denominators) !== 0
+  ) {
+    return Math.round(
+      (Number(data.numerators) - Number(data.denominators)) / days
+    );
+  }
+  return 0;
+};
+export const processCoverageValue = (data: any, days: number) => {
+  if (
+    Number(data.numerators) !== NaN &&
+    Number(data.denominators) !== NaN &&
+    Number(data.denominators) !== 0
+  ) {
+    return (
+      (Number(data.numerators) * 100) / (Number(data.denominators) * (days / 3))
+    );
+  }
+  return 0;
+};
+
+export const processMapCoverage = (
+  numerators: any,
+  denominators: any,
+  days: number
+) => {
+  if (
+    Number(numerators) !== NaN &&
+    Number(denominators) !== NaN &&
+    Number(denominators) !== 0
+  ) {
+    return (Number(numerators) * 100) / (Number(denominators) * (days / 3));
+  }
+  return 0;
+};
+
+export const processMapSingleValue = (numerators: any, denominators: any) => {
+  if (
+    Number(numerators) !== NaN &&
+    Number(denominators) !== NaN &&
+    Number(denominators) !== 0
+  ) {
+    return Number(numerators) / Number(denominators);
   }
   return 0;
 };
@@ -88,9 +184,14 @@ export const computeWastage = (data: any) => {
   if (
     Number(data.numerators) !== NaN &&
     Number(data.denominators) !== NaN &&
+    Number(data.other) !== NaN &&
     Number(data.denominators) !== 0
   ) {
-    return (Number(data.numerators) * 50 * 100) / Number(data.denominators);
+    const issued = Number(data.numerators) * 50;
+    const useableReturned = Number(data.denominators) * 50;
+    const vaccinated = Number(data.other);
+    const used = issued - useableReturned;
+    return ((used - vaccinated) * 100) / used;
   }
   return 0;
 };
@@ -104,6 +205,17 @@ export const computeTeamsTarget = (data: any, days: number) => {
     return (
       (Number(data.numerators) * days) / (Number(data.denominators) * 3 * 3)
     );
+  }
+  return 0;
+};
+
+export const computeVaccinationTarget = (data: any, days: number) => {
+  if (
+    Number(data.numerators) !== NaN &&
+    Number(data.denominators) !== NaN &&
+    Number(data.denominators) !== 0
+  ) {
+    return (Number(data.numerators) * days) / (Number(data.denominators) * 3);
   }
   return 0;
 };
@@ -158,7 +270,14 @@ export function processSublevelPerformance(
     ),
     type: "bar",
     textposition: "auto",
-    texttemplate: "%{y}",
+    texttemplate: "%{y:.2s}",
+    textfont: {
+      color: "black",
+    },
+    marker: {
+      color: "#fdae61",
+    },
+
     // hoverinfo: "none",
   };
   const performance = {
@@ -167,10 +286,16 @@ export function processSublevelPerformance(
     y: sublevels.map(({ id }) => data.numerators[id] || 0),
     type: "bar",
     textposition: "auto",
-    texttemplate: "%{y}",
+    texttemplate: "%{y:.2s}",
+    textfont: {
+      color: "black",
+    },
+    marker: {
+      color: "#1a9641",
+    },
     // hoverinfo: "none",
   };
-  return [target, performance];
+  return [performance, target];
 }
 
 export function processSublevelWastageData(
@@ -179,7 +304,7 @@ export function processSublevelWastageData(
   others: any[]
 ): any[] {
   const x = sublevels.map(({ name }) => name);
-  return others.map(({ id: currentDe, name }) => {
+  return others.map(({ id: currentDe, name }, index: number) => {
     const y = sublevels.map(({ id }) => {
       const dt = data.numerators.find(([p, d]) => d === currentDe && id === p);
       if (dt) {
@@ -193,7 +318,10 @@ export function processSublevelWastageData(
       y,
       type: "bar",
       textposition: "auto",
-      texttemplate: "%{y}",
+      texttemplate: "%{y:.2s}",
+      marker: {
+        color: COLORS[index],
+      },
       // hoverinfo: "none",
     };
   });
@@ -209,6 +337,9 @@ export function processWastageData(data: any) {
       hoverinfo: "label+percent+name",
       textposition: "inside",
       hole: 0.4,
+      marker: {
+        colors: COLORS,
+      },
     },
   ];
 }

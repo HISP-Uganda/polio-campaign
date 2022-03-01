@@ -1,3 +1,4 @@
+import { Position } from "@turf/turf";
 import { domain } from "./Domain";
 
 export const changeCurrentUser = domain.createEvent<string>();
@@ -11,3 +12,4 @@ export const setZoom = domain.createEvent<number>();
 export const setSublevel = domain.createEvent<number>();
 export const setDays = domain.createEvent<any[]>();
 export const setSublevels = domain.createEvent<any[]>();
+export const setMapCenter = domain.createEvent<Position>();
