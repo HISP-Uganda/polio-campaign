@@ -45,7 +45,7 @@ export const mainDashboard: { [key: string]: func } = {
       numerator: {
         sqlView: "nWziq9Yr0mA",
         parameters: {
-          dx: "K3QB60hWuQI",
+          dx: "OeItYwoZ3RK",
           parent,
           aoc,
         },
@@ -61,7 +61,7 @@ export const mainDashboard: { [key: string]: func } = {
       numerator: {
         sqlView: "Zd4pmzH9wr3",
         parameters: {
-          dx: "K3QB60hWuQI",
+          dx: "OeItYwoZ3RK",
           parent,
           part,
           aoc,
@@ -220,11 +220,11 @@ export const mainDashboard: { [key: string]: func } = {
       },
     };
   },
-  discarded: (parent, aoc) => {
+  discarded: (parent, aoc,dx) => {
     return {
       numerator: {
         sqlView: "XMsx2OmhqBa",
-        parameters: { parent, dx: "K3QB60hWuQI", aoc },
+        parameters: { parent, dx, aoc },
       },
       denominator: {
         sqlView: "ezh2YYPPeLN",
@@ -317,12 +317,12 @@ export const mainDashboard: { [key: string]: func } = {
       },
     };
   },
-  wastageSummary: (parent, aoc) => {
+  wastageSummary: (parent, aoc,dx) => {
     return {
       numerator: {
         sqlView: "PiiwBdbBm7Z",
         parameters: {
-          dx: "K3QB60hWuQI",
+          dx,
           parent,
           aoc,
         },

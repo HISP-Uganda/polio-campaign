@@ -61,6 +61,7 @@ export const MotionBox: React.FC<MotionBoxProps> = motion(chakra.div);
 
 const Dashboard = () => {
   const [index, setIndex] = useState<number>(0);
+  const [current, setCurrent] = useState<number>(0);
   const store = useStore($store);
   const days = useStore($days);
   const realDays = useStore($realDays);
@@ -81,6 +82,7 @@ const Dashboard = () => {
     <MotionBox
       key="coverage"
       h="100%"
+      w="100%"
       initial={{
         opacity: 0,
       }}
@@ -103,6 +105,7 @@ const Dashboard = () => {
     <MotionBox
       key="performance"
       h="100%"
+      w="100%"
       initial={{
         opacity: 0,
       }}
@@ -122,6 +125,7 @@ const Dashboard = () => {
       />
     </MotionBox>,
     <MotionBox
+      w="100%"
       key="wastage"
       h="100%"
       initial={{
@@ -143,9 +147,116 @@ const Dashboard = () => {
       />
     </MotionBox>,
   ];
+  const wastages = [
+    <MotionBox
+      h="100%"
+      w="100%"
+      key="at_site"
+      initial={{
+        opacity: 0,
+      }}
+      animate={{
+        opacity: 1,
+      }}
+      transition={{ duration: 1 }}
+    >
+      <Stack w="100%" h="100%" spacing={0}>
+        <Flex
+          alignItems="center"
+          bg="gray.200"
+          h="30px"
+          alignContent="center"
+          justifyItems="center"
+        >
+          <HStack
+            pl="25px"
+            w="100%"
+            h="20px"
+            textTransform="uppercase"
+            fontWeight="bold"
+            fontSize="0.8vw"
+            color="gray.500"
+            isTruncated
+          >
+            <Text>Unusable Vials(Site)</Text>
+            <Unusable
+              processor={calculateStockIndicators}
+              indicator={mainDashboard.discarded(
+                store.selectedUnits,
+                days,
+                "OeItYwoZ3RK"
+              )}
+            />
+          </HStack>
+        </Flex>
+        <PieChart
+          processor={processWastageData}
+          indicator={mainDashboard.wastageSummary(
+            store.selectedUnits,
+            days,
+            "OeItYwoZ3RK"
+          )}
+        />
+      </Stack>
+    </MotionBox>,
+    <MotionBox
+      h="100%"
+      w="100%"
+      key="at_store"
+      initial={{
+        opacity: 0,
+      }}
+      animate={{
+        opacity: 1,
+      }}
+      transition={{ duration: 1 }}
+    >
+      <Stack w="100%" h="100%" spacing={0}>
+        <Flex
+          alignItems="center"
+          bg="gray.200"
+          h="30px"
+          alignContent="center"
+          justifyItems="center"
+        >
+          <HStack
+            pl="25px"
+            w="100%"
+            h="20px"
+            textTransform="uppercase"
+            fontWeight="bold"
+            fontSize="0.8vw"
+            color="gray.500"
+            isTruncated
+          >
+            <Text>Vials Returned to Store</Text>
+            <Unusable
+              processor={calculateStockIndicators}
+              indicator={mainDashboard.discarded(
+                store.selectedUnits,
+                days,
+                "XXRlX2cJWuT"
+              )}
+            />
+          </HStack>
+        </Flex>
+        <PieChart
+          processor={processWastageData}
+          indicator={mainDashboard.wastageSummary(
+            store.selectedUnits,
+            days,
+            "XXRlX2cJWuT"
+          )}
+        />
+      </Stack>
+    </MotionBox>,
+  ];
 
   const incrementMaps = () => setIndex((s: number) => (s + 1) % maps.length);
+  const incrementCurrent = () =>
+    setCurrent((s: number) => (s + 1) % wastages.length);
   useInterval(incrementMaps, 1000 * 30);
+  useInterval(incrementCurrent, 1000 * 30);
   return (
     <FullScreen handle={handle}>
       <Box bg={realBg} p="5px">
@@ -168,7 +279,6 @@ const Dashboard = () => {
               hideSelectedOptions={false}
               selectedOptionStyle="check"
               onChange={(value: any, actions: any) => {
-                console.log(actions);
                 setDays(value);
               }}
               isMulti
@@ -652,7 +762,6 @@ const Dashboard = () => {
                       >
                         <HStack
                           w="100%"
-                          // bg="yellow"
                           justifyContent="space-around"
                           alignItems="center"
                           justifyItems="center"
@@ -714,42 +823,7 @@ const Dashboard = () => {
                     </Stack>
                   </GridItem>
                   <GridItem rowSpan={2} bg={bg}>
-                    <Stack w="100%" h="100%" spacing={0}>
-                      <Flex
-                        alignItems="center"
-                        bg="gray.200"
-                        h="30px"
-                        alignContent="center"
-                        justifyItems="center"
-                      >
-                        <HStack
-                          pl="25px"
-                          w="100"
-                          h="20px"
-                          textTransform="uppercase"
-                          fontWeight="bold"
-                          fontSize="0.8vw"
-                          color="gray.500"
-                          isTruncated
-                        >
-                          <Text>Unusable Vials</Text>
-                          <Unusable
-                            processor={calculateStockIndicators}
-                            indicator={mainDashboard.discarded(
-                              store.selectedUnits,
-                              days
-                            )}
-                          />
-                        </HStack>
-                      </Flex>
-                      <PieChart
-                        processor={processWastageData}
-                        indicator={mainDashboard.wastageSummary(
-                          store.selectedUnits,
-                          days
-                        )}
-                      />
-                    </Stack>
+                    {wastages[current]}
                   </GridItem>
                 </Grid>
               </GridItem>

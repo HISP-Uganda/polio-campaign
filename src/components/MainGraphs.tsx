@@ -72,11 +72,12 @@ const MainGraphs: FC<{ yColor: string; bg: string }> = ({ yColor, bg }) => {
             args={[
               store.days,
               [
-                { id: "XRisIwF1Lk3", name: "Empty Vials" },
-                { id: "WC7dEdnHjfn", name: "Contamination" },
+                { id: "v4xXuxgLHYT", name: "Empty Vials" },
+                { id: "cyWMBEPiYgK", name: "Broken" },
+                { id: "vBO7uZ0qWkM", name: "Contamination" },
                 { id: "OevThMNdV8u", name: "Partial Use" },
-                { id: "uDHd6MAn9Ck", name: "VVM Color Change" },
-                { id: "q9Dmtmon8oX", name: "Other (Specify)" },
+                { id: "NNO02XzNa97", name: "VVM Color Change" },
+                { id: "dxHFnBP2dGe", name: "Other (Specify)" },
               ],
             ]}
           />
@@ -95,10 +96,12 @@ const MainGraphs: FC<{ yColor: string; bg: string }> = ({ yColor, bg }) => {
             args={[
               store.sublevels,
               [
-                { id: "WC7dEdnHjfn", name: "Contamination" },
-                { id: "OevThMNdV8u", name: "Partial use" },
-                { id: "uDHd6MAn9Ck", name: "VVM Color Change" },
-                { id: "q9Dmtmon8oX", name: "Other (Specify)" },
+                { id: "v4xXuxgLHYT", name: "Empty Vials" },
+                { id: "cyWMBEPiYgK", name: "Broken" },
+                { id: "vBO7uZ0qWkM", name: "Contamination" },
+                { id: "OevThMNdV8u", name: "Partial Use" },
+                { id: "NNO02XzNa97", name: "VVM Color Change" },
+                { id: "dxHFnBP2dGe", name: "Other (Specify)" },
               ],
             ]}
           />
